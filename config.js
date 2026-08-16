@@ -10,5 +10,5 @@
    (visibles dans le code du site) — ce n'est pas la clé secrète.
    ========================================================= */
 
-const SUPABASE_URL = "https://rdc-jeunes-opportunites.supabase.co";
-const SUPABASE_ANON_KEY = "tvikvysdfbrcwmnnlgwp"
+const SUPABASE_URL = "https://tvikvysdfbrcwmnnlgwp.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_xp-8aSpz3R7vRZ0aYp5hVw_7-UHoQXy";
