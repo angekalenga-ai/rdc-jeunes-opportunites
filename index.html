@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RDC Jeunes Opportunités — Emplois, bourses, formations vérifiés</title>
+<meta name="description" content="La plateforme qui centralise et vérifie les opportunités d'emploi, de stage, de bourse et de formation pour les jeunes Congolais.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="entete">
+  <div class="conteneur">
+    <a class="logo" href="index.html">RDC <span>Jeunes</span> Opportunités</a>
+    <nav class="nav-principale">
+      <a href="index.html">Accueil</a>
+      <a href="opportunites.html">Opportunités</a>
+      <a href="https://rdcjeuneopportunites.blogspot.com" target="_blank" rel="noopener">Articles</a>
+      <a href="apropos.html">À propos</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <button class="menu-mobile-bouton" onclick="basculerMenuMobile()">Menu</button>
+  </div>
+  <div class="conteneur">
+    <nav class="nav-mobile" id="nav-mobile">
+      <a href="index.html">Accueil</a>
+      <a href="opportunites.html">Opportunités</a>
+      <a href="https://rdcjeuneopportunites.blogspot.com" target="_blank" rel="noopener">Articles</a>
+      <a href="apropos.html">À propos</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="conteneur">
+    <div class="hero-eyebrow">Vérifiée · Fiable · Gratuite</div>
+    <h1>Des opportunités réelles pour la jeunesse congolaise</h1>
+    <p>Emplois, stages, bourses, formations et concours — chaque opportunité marquée « Vérifiée » a une source officielle confirmée. RJO ne demande jamais d'argent.</p>
+
+    <form class="recherche-barre" action="opportunites.html" method="get">
+      <input type="text" name="recherche" placeholder="Rechercher une bourse, un emploi, une formation...">
+      <button type="submit">Rechercher</button>
+    </form>
+
+    <div class="hero-stats" id="stats-hero">
+      <div class="hero-stat"><b id="stat-total">—</b><span>Opportunités vérifiées</span></div>
+      <div class="hero-stat"><b>8</b><span>Catégories couvertes</span></div>
+      <div class="hero-stat"><b>0 FC</b><span>Jamais d'argent demandé</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="conteneur">
+    <div class="section-titre">
+      <h2>Opportunités à la une</h2>
+      <a class="voir-tout" href="opportunites.html">Voir tout →</a>
+    </div>
+    <div class="grille-opportunites" id="grille-vedettes">
+      <div class="etat-message">Chargement des opportunités...</div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="background:var(--gris-clair);">
+  <div class="conteneur">
+    <div class="section-titre">
+      <h2>Parcourir par catégorie</h2>
+    </div>
+    <div class="grille-categories">
+      <a class="categorie-carte" href="opportunites.html?categorie=emploi"><div class="icone">01 · EMPLOI</div><h3>Emploi</h3></a>
+      <a class="categorie-carte" href="opportunites.html?categorie=stage"><div class="icone">02 · STAGE</div><h3>Stage</h3></a>
+      <a class="categorie-carte" href="opportunites.html?categorie=bourse"><div class="icone">03 · BOURSE</div><h3>Bourse d'études</h3></a>
+      <a class="categorie-carte" href="opportunites.html?categorie=formation"><div class="icone">04 · FORMATION</div><h3>Formation</h3></a>
+      <a class="categorie-carte" href="opportunites.html?categorie=concours"><div class="icone">05 · CONCOURS</div><h3>Concours</h3></a>
+      <a class="categorie-carte" href="opportunites.html?categorie=entrepreneuriat"><div class="icone">06 · ENTREPRENEURIAT</div><h3>Entrepreneuriat</h3></a>
+      <a class="categorie-carte" href="opportunites.html?categorie=financement"><div class="icone">07 · FINANCEMENT</div><h3>Financement</h3></a>
+      <a class="categorie-carte" href="opportunites.html?categorie=programme_international"><div class="icone">08 · INTERNATIONAL</div><h3>Programme international</h3></a>
+    </div>
+  </div>
+</section>
+
+<footer class="pied">
+  <div class="conteneur">
+    <div class="pied-colonne">
+      <h4>RDC Jeunes Opportunités</h4>
+      <a href="apropos.html">À propos</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="pied-colonne">
+      <h4>Explorer</h4>
+      <a href="opportunites.html">Toutes les opportunités</a>
+      <a href="https://rdcjeuneopportunites.blogspot.com" target="_blank" rel="noopener">Articles & conseils</a>
+    </div>
+    <div class="pied-colonne">
+      <h4>Contact</h4>
+      <a href="mailto:rdcjeuneopportunites@gmail.com">rdcjeuneopportunites@gmail.com</a>
+    </div>
+  </div>
+  <div class="pied-bas">RJO ne demande jamais d'argent. En cas de doute sur une offre, vérifiez toujours son statut avant de postuler.</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="supabase-client.js"></script>
+<script>
+  async function chargerAccueil() {
+    const grille = document.getElementById("grille-vedettes");
+    const opportunites = await recupererOpportunitesVerifiees({ limite: 6 });
+
+    if (opportunites.length === 0) {
+      grille.innerHTML = '<div class="etat-message">Aucune opportunité vérifiée pour le moment. Revenez bientôt.</div>';
+    } else {
+      grille.innerHTML = opportunites.map(carteOpportuniteHTML).join("");
+    }
+
+    const { count } = await rjoClient
+      .from("opportunites")
+      .select("*", { count: "exact", head: true })
+      .eq("statut", "verifiee");
+    document.getElementById("stat-total").textContent = count ?? "0";
+  }
+  chargerAccueil();
+</script>
+
+</body>
+</html>

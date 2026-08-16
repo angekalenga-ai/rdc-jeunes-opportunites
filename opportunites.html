@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Opportunités vérifiées — RDC Jeunes Opportunités</title>
+<meta name="description" content="Parcourez et filtrez toutes les opportunités vérifiées : emploi, stage, bourse, formation, concours, entrepreneuriat.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="entete">
+  <div class="conteneur">
+    <a class="logo" href="index.html">RDC <span>Jeunes</span> Opportunités</a>
+    <nav class="nav-principale">
+      <a href="index.html">Accueil</a>
+      <a href="opportunites.html">Opportunités</a>
+      <a href="https://rdcjeuneopportunites.blogspot.com" target="_blank" rel="noopener">Articles</a>
+      <a href="apropos.html">À propos</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <button class="menu-mobile-bouton" onclick="basculerMenuMobile()">Menu</button>
+  </div>
+  <div class="conteneur">
+    <nav class="nav-mobile" id="nav-mobile">
+      <a href="index.html">Accueil</a>
+      <a href="opportunites.html">Opportunités</a>
+      <a href="https://rdcjeuneopportunites.blogspot.com" target="_blank" rel="noopener">Articles</a>
+      <a href="apropos.html">À propos</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<section class="section" style="padding-bottom:0;">
+  <div class="conteneur">
+    <h1 style="font-size:1.7rem;">Toutes les opportunités vérifiées</h1>
+    <p style="color:var(--gris-texte); max-width:600px;">Chaque opportunité affichée ici a été vérifiée auprès d'une source officielle. Utilise les filtres pour trouver ce qui te correspond.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="conteneur">
+    <form class="barre-filtres" id="form-filtres">
+      <input type="text" id="filtre-recherche" name="recherche" placeholder="Rechercher par titre...">
+      <select id="filtre-categorie" name="categorie">
+        <option value="">Toutes les catégories</option>
+        <option value="emploi">Emploi</option>
+        <option value="stage">Stage</option>
+        <option value="bourse">Bourse</option>
+        <option value="formation">Formation</option>
+        <option value="concours">Concours</option>
+        <option value="entrepreneuriat">Entrepreneuriat</option>
+        <option value="financement">Financement</option>
+        <option value="programme_international">Programme international</option>
+      </select>
+      <input type="text" id="filtre-pays" name="pays" placeholder="Pays (ex: RDC, France...)">
+      <button type="submit" class="bouton bouton-primaire">Filtrer</button>
+    </form>
+
+    <div class="grille-opportunites" id="grille-resultats">
+      <div class="etat-message">Chargement des opportunités...</div>
+    </div>
+  </div>
+</section>
+
+<footer class="pied">
+  <div class="conteneur">
+    <div class="pied-colonne">
+      <h4>RDC Jeunes Opportunités</h4>
+      <a href="apropos.html">À propos</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="pied-colonne">
+      <h4>Explorer</h4>
+      <a href="opportunites.html">Toutes les opportunités</a>
+      <a href="https://rdcjeuneopportunites.blogspot.com" target="_blank" rel="noopener">Articles & conseils</a>
+    </div>
+    <div class="pied-colonne">
+      <h4>Contact</h4>
+      <a href="mailto:rdcjeuneopportunites@gmail.com">rdcjeuneopportunites@gmail.com</a>
+    </div>
+  </div>
+  <div class="pied-bas">RJO ne demande jamais d'argent. En cas de doute sur une offre, vérifiez toujours son statut avant de postuler.</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="supabase-client.js"></script>
+<script>
+  const params = new URLSearchParams(window.location.search);
+
+  function lireFiltresActuels() {
+    return {
+      recherche: document.getElementById("filtre-recherche").value.trim(),
+      categorie: document.getElementById("filtre-categorie").value,
+      pays: document.getElementById("filtre-pays").value.trim(),
+    };
+  }
+
+  async function afficherResultats(filtres) {
+    const grille = document.getElementById("grille-resultats");
+    grille.innerHTML = '<div class="etat-message">Recherche en cours...</div>';
+
+    const opportunites = await recupererOpportunitesVerifiees(filtres);
+
+    if (opportunites.length === 0) {
+      grille.innerHTML = '<div class="etat-message">Aucune opportunité ne correspond à ces critères pour le moment.</div>';
+      return;
+    }
+    grille.innerHTML = opportunites.map(carteOpportuniteHTML).join("");
+  }
+
+  // Pré-remplir les filtres depuis l'URL (ex: venant de la page d'accueil)
+  if (params.get("recherche")) document.getElementById("filtre-recherche").value = params.get("recherche");
+  if (params.get("categorie")) document.getElementById("filtre-categorie").value = params.get("categorie");
+  if (params.get("pays")) document.getElementById("filtre-pays").value = params.get("pays");
+
+  document.getElementById("form-filtres").addEventListener("submit", (e) => {
+    e.preventDefault();
+    afficherResultats(lireFiltresActuels());
+  });
+
+  afficherResultats(lireFiltresActuels());
+</script>
+
+</body>
+</html>

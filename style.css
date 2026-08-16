@@ -1,0 +1,355 @@
+/* =========================================================
+   RDC JEUNES OPPORTUNITÉS — Feuille de style partagée
+   Identité visuelle validée : ne pas modifier les couleurs
+   ========================================================= */
+
+:root {
+  --bleu-rdc: #0756B8;
+  --bleu-nuit: #102A68;
+  --or: #F5B900;
+  --rouge: #D71920;
+  --blanc: #FFFFFF;
+  --gris-clair: #F5F6F8;
+  --gris-bordure: #E2E5EA;
+  --gris-texte: #4A5568;
+  --gris-texte-clair: #7A8299;
+
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'IBM Plex Sans', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  --rayon: 12px;
+  --ombre: 0 2px 12px rgba(16, 42, 104, 0.08);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--bleu-nuit);
+  background: var(--blanc);
+  line-height: 1.55;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  color: var(--bleu-nuit);
+  line-height: 1.15;
+  margin: 0 0 0.5em;
+}
+
+a { color: var(--bleu-rdc); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+img { max-width: 100%; display: block; }
+
+.conteneur {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* -------- HEADER -------- */
+.entete {
+  border-bottom: 1px solid var(--gris-bordure);
+  position: sticky;
+  top: 0;
+  background: var(--blanc);
+  z-index: 50;
+}
+
+.entete .conteneur {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--bleu-nuit);
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.logo span { color: var(--or); }
+
+.nav-principale {
+  display: none;
+  gap: 24px;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+.nav-principale a { color: var(--bleu-nuit); }
+
+@media (min-width: 860px) {
+  .nav-principale { display: flex; }
+  .menu-mobile-bouton { display: none; }
+}
+
+.menu-mobile-bouton {
+  background: none;
+  border: 1px solid var(--gris-bordure);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--bleu-nuit);
+}
+
+.nav-mobile {
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  border-top: 1px solid var(--gris-bordure);
+  padding: 10px 0;
+}
+.nav-mobile.ouvert { display: flex; }
+.nav-mobile a {
+  padding: 10px 4px;
+  color: var(--bleu-nuit);
+  border-bottom: 1px solid var(--gris-clair);
+}
+
+/* -------- BOUTONS -------- */
+.bouton {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 12px 22px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+}
+.bouton:hover { text-decoration: none; }
+.bouton-primaire { background: var(--bleu-rdc); color: var(--blanc); }
+.bouton-primaire:hover { background: var(--bleu-nuit); }
+.bouton-secondaire { background: var(--blanc); color: var(--bleu-rdc); border: 1.5px solid var(--bleu-rdc); }
+
+/* -------- HERO -------- */
+.hero {
+  background: var(--bleu-nuit);
+  color: var(--blanc);
+  padding: 56px 0 64px;
+}
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  color: var(--or);
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.hero h1 { color: var(--blanc); font-size: 2.1rem; max-width: 620px; }
+.hero p { color: #C9D2E8; max-width: 520px; font-size: 1.05rem; }
+
+.recherche-barre {
+  margin-top: 28px;
+  display: flex;
+  background: var(--blanc);
+  border-radius: 999px;
+  padding: 6px;
+  max-width: 520px;
+  box-shadow: var(--ombre);
+}
+.recherche-barre input {
+  flex: 1;
+  border: none;
+  background: none;
+  padding: 10px 16px;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--bleu-nuit);
+  outline: none;
+}
+.recherche-barre button {
+  background: var(--or);
+  color: var(--bleu-nuit);
+  border: none;
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+
+.hero-stats {
+  display: flex;
+  gap: 28px;
+  margin-top: 32px;
+  flex-wrap: wrap;
+}
+.hero-stat b { font-family: var(--font-display); font-size: 1.4rem; color: var(--or); display: block; }
+.hero-stat span { font-size: 0.82rem; color: #C9D2E8; }
+
+/* -------- SECTIONS -------- */
+.section { padding: 52px 0; }
+.section-titre {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.section-titre h2 { font-size: 1.5rem; margin: 0; }
+.voir-tout { font-family: var(--font-mono); font-size: 0.85rem; }
+
+/* -------- GRILLE CATÉGORIES -------- */
+.grille-categories {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+@media (min-width: 700px) {
+  .grille-categories { grid-template-columns: repeat(4, 1fr); }
+}
+.categorie-carte {
+  background: var(--gris-clair);
+  border-radius: var(--rayon);
+  padding: 20px 16px;
+  text-align: left;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.categorie-carte:hover { background: #EAF0FB; transform: translateY(-2px); text-decoration: none; }
+.categorie-carte .icone { font-family: var(--font-mono); color: var(--bleu-rdc); font-size: 0.75rem; }
+.categorie-carte h3 { font-size: 1rem; margin-top: 8px; }
+
+/* -------- CARTES OPPORTUNITÉ -------- */
+.grille-opportunites {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+}
+@media (min-width: 700px) {
+  .grille-opportunites { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1020px) {
+  .grille-opportunites { grid-template-columns: repeat(3, 1fr); }
+}
+
+.carte-opportunite {
+  position: relative;
+  border: 1px solid var(--gris-bordure);
+  border-radius: var(--rayon);
+  padding: 20px;
+  background: var(--blanc);
+  box-shadow: var(--ombre);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.badge-categorie {
+  align-self: flex-start;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--bleu-rdc);
+  color: var(--blanc);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.carte-opportunite h3 { font-size: 1.1rem; margin: 0; }
+.carte-opportunite .organisme { font-size: 0.88rem; color: var(--gris-texte); }
+
+.meta-ligne {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--gris-texte-clair);
+  border-top: 1px dashed var(--gris-bordure);
+  padding-top: 10px;
+  margin-top: auto;
+}
+
+/* -------- TAMPON DE VÉRIFICATION -------- */
+.tampon-verifie {
+  position: absolute;
+  top: -12px;
+  right: -10px;
+  width: 74px;
+  height: 74px;
+  border: 3px solid var(--rouge);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-11deg);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--ombre);
+}
+.tampon-verifie span {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  color: var(--rouge);
+  text-align: center;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+/* -------- FILTRES (page opportunités) -------- */
+.barre-filtres {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+  padding: 16px;
+  background: var(--gris-clair);
+  border-radius: var(--rayon);
+}
+.barre-filtres input,
+.barre-filtres select {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--gris-bordure);
+  background: var(--blanc);
+  color: var(--bleu-nuit);
+}
+.barre-filtres input { flex: 1; min-width: 180px; }
+
+.etat-message {
+  font-family: var(--font-mono);
+  color: var(--gris-texte-clair);
+  padding: 40px 0;
+  text-align: center;
+}
+
+/* -------- FOOTER -------- */
+.pied {
+  background: var(--bleu-nuit);
+  color: #C9D2E8;
+  margin-top: 60px;
+  padding: 40px 0 24px;
+}
+.pied a { color: var(--blanc); }
+.pied .conteneur {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+.pied-colonne h4 { color: var(--blanc); font-size: 0.9rem; }
+.pied-colonne a { display: block; font-size: 0.88rem; margin-bottom: 8px; color: #C9D2E8; }
+.pied-bas {
+  border-top: 1px solid rgba(255,255,255,0.15);
+  margin-top: 30px;
+  padding-top: 18px;
+  font-size: 0.78rem;
+  font-family: var(--font-mono);
+  color: #8B95B5;
+  text-align: center;
+}
