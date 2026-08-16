@@ -59,7 +59,8 @@ async function recupererOpportunitesVerifiees(filtres = {}) {
  * Construit le HTML d'une carte opportunité.
  */
 function carteOpportuniteHTML(opp) {
-  const nomOrganisme = opp.organismes?.nom || "Organisme non précisé";
+  const organismeData = Array.isArray(opp.organismes) ? opp.organismes[0] : opp.organismes;
+  const nomOrganisme = organismeData?.nom || "Organisme non précisé";
   const paysAffiche = opp.pays || "—";
   return `
     <a class="carte-opportunite" href="opportunite.html?id=${opp.id}" style="text-decoration:none;">
