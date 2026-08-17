@@ -328,6 +328,95 @@ img { max-width: 100%; display: block; }
   text-align: center;
 }
 
+/* -------- ENCARTS / VALEURS / CONTACT (pages À propos, Contact) -------- */
+.encart {
+  border-left: 4px solid var(--rouge);
+  background: var(--gris-clair);
+  border-radius: var(--rayon);
+  padding: 26px;
+  margin: 8px 0 28px;
+}
+.encart h3 { margin-top: 0; }
+
+.grille-valeurs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+@media (min-width: 700px) {
+  .grille-valeurs { grid-template-columns: repeat(5, 1fr); }
+}
+.valeur-carte {
+  text-align: center;
+  padding: 20px 10px;
+  background: var(--gris-clair);
+  border-radius: var(--rayon);
+}
+.valeur-carte .chiffre {
+  font-family: var(--font-mono);
+  color: var(--bleu-rdc);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+}
+.valeur-carte h3 { font-size: 1rem; margin: 8px 0 0; }
+
+.chaine-methode {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+@media (min-width: 700px) {
+  .chaine-methode { grid-template-columns: repeat(6, 1fr); }
+}
+.methode-etape {
+  text-align: center;
+  padding: 16px 8px;
+  border: 1px solid var(--gris-bordure);
+  border-radius: var(--rayon);
+}
+.methode-etape .chiffre {
+  font-family: var(--font-mono);
+  color: var(--or);
+  background: var(--bleu-nuit);
+  display: inline-block;
+  width: 26px;
+  height: 26px;
+  line-height: 26px;
+  border-radius: 50%;
+  font-size: 0.78rem;
+  margin-bottom: 8px;
+}
+.methode-etape span { display: block; font-size: 0.85rem; }
+
+.carte-contact {
+  border: 1px solid var(--gris-bordure);
+  border-radius: var(--rayon);
+  padding: 30px;
+  box-shadow: var(--ombre);
+  max-width: 520px;
+}
+.carte-contact .lien-contact {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--gris-bordure);
+  font-size: 1rem;
+}
+.carte-contact .lien-contact:last-child { border-bottom: none; }
+.carte-contact .lien-contact .etiquette {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--gris-texte-clair);
+  text-transform: uppercase;
+  min-width: 90px;
+}
+
+.reseau-lien { display: inline-flex; align-items: center; gap: 8px; }
+.reseau-lien img { display: block; }
+.lien-contact a { display: inline-flex; align-items: center; gap: 8px; }
+.lien-contact a img { display: block; }
+
 /* -------- FOOTER -------- */
 .pied {
   background: var(--bleu-nuit);
