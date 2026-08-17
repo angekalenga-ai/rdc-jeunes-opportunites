@@ -1,137 +1,74 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Opportunités vérifiées — RDC Jeunes Opportunités</title>
-<meta name="description" content="Parcourez et filtrez toutes les opportunités vérifiées : emploi, stage, bourse, formation, concours, entrepreneuriat.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opportunités | RDC Jeunes Opportunités</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .grid-opp { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding: 20px; }
+        .carte-opp { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-left: 5px solid #0756B8; }
+        .carte-opp h3 { color: #102A68; margin-top: 0; }
+        .badge { display: inline-block; background: #e0e7ff; color: #0756B8; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; margin-bottom: 10px; }
+    </style>
 </head>
 <body>
 
 <header class="entete">
-  <div class="conteneur">
-    <a class="logo" href="index.html"><img src="images/logo-rjo.png" alt="RDC Jeunes Opportunités"></a>
-    <nav class="nav-principale">
-      <a href="index.html">Accueil</a>
-      <a href="opportunites.html">Opportunités</a>
-      <a href="https://rdcjeuneopportunites.blogspot.com" target="_blank" rel="noopener">Articles</a>
-      <a href="apropos.html">À propos</a>
-      <a href="contact.html">Contact</a>
-      <a href="compte.html">Connexion</a>
-    </nav>
-    <button class="menu-mobile-bouton" onclick="basculerMenuMobile()">Menu</button>
-  </div>
-  <div class="conteneur">
-    <nav class="nav-mobile" id="nav-mobile">
-      <a href="index.html">Accueil</a>
-      <a href="opportunites.html">Opportunités</a>
-      <a href="https://rdcjeuneopportunites.blogspot.com" target="_blank" rel="noopener">Articles</a>
-      <a href="apropos.html">À propos</a>
-      <a href="contact.html">Contact</a>
-      <a href="compte.html">Connexion</a>
-    </nav>
-  </div>
+    <!-- Votre header existant -->
 </header>
 
-<section class="section" style="padding-bottom:0;">
-  <div class="conteneur">
-    <h1 style="font-size:1.7rem;">Toutes les opportunités vérifiées</h1>
-    <p style="color:var(--gris-texte); max-width:600px;">Chaque opportunité affichée ici a été vérifiée auprès d'une source officielle. Utilise les filtres pour trouver ce qui te correspond.</p>
-  </div>
-</section>
-
 <section class="section">
-  <div class="conteneur">
-    <form class="barre-filtres" id="form-filtres">
-      <input type="text" id="filtre-recherche" name="recherche" placeholder="Rechercher par titre...">
-      <select id="filtre-categorie" name="categorie">
-        <option value="">Toutes les catégories</option>
-        <option value="emploi">Emploi</option>
-        <option value="stage">Stage</option>
-        <option value="bourse">Bourse</option>
-        <option value="formation">Formation</option>
-        <option value="concours">Concours</option>
-        <option value="entrepreneuriat">Entrepreneuriat</option>
-        <option value="financement">Financement</option>
-        <option value="programme_international">Programme international</option>
-      </select>
-      <input type="text" id="filtre-pays" name="pays" placeholder="Pays (ex: RDC, France...)">
-      <button type="submit" class="bouton bouton-primaire">Filtrer</button>
-    </form>
-
-    <div class="grille-opportunites" id="grille-resultats">
-      <div class="etat-message">Chargement des opportunités...</div>
+    <div class="conteneur">
+        <h2>Opportunités en cours</h2>
+        <div id="liste-opportunites" class="grid-opp">
+            <p>Chargement des opportunités...</p>
+        </div>
     </div>
-  </div>
 </section>
 
-<footer class="pied">
-  <div class="conteneur">
-    <div class="pied-colonne">
-      <h4>RDC Jeunes Opportunités</h4>
-      <a href="apropos.html">À propos</a>
-      <a href="contact.html">Contact</a>
-    </div>
-    <div class="pied-colonne">
-      <h4>Explorer</h4>
-      <a href="opportunites.html">Toutes les opportunités</a>
-      <a href="https://rdcjeuneopportunites.blogspot.com" target="_blank" rel="noopener">Articles & conseils</a>
-    </div>
-    <div class="pied-colonne">
-      <h4>Contact</h4>
-      <a href="mailto:rdcjeuneopportunites@gmail.com">rdcjeuneopportunites@gmail.com</a>
-    </div>
-    <div class="pied-colonne">
-      <h4>Réseaux</h4>
-      <a class="reseau-lien" href="https://www.facebook.com/p/RDC-Jeune-Opportunit%C3%A9s-61581809061722/" target="_blank" rel="noopener"><img src="https://cdn.simpleicons.org/facebook/FFFFFF" width="18" height="18" alt="">Facebook</a>
-      <a class="reseau-lien" href="https://www.instagram.com/rdcjeuneopportunites/" target="_blank" rel="noopener"><img src="https://cdn.simpleicons.org/instagram/FFFFFF" width="18" height="18" alt="">Instagram</a>
-      <a class="reseau-lien" href="https://wa.me/243852062070" target="_blank" rel="noopener"><img src="https://cdn.simpleicons.org/whatsapp/FFFFFF" width="18" height="18" alt="">WhatsApp</a>
-    </div>
-  </div>
-  <div class="pied-bas">RJO ne demande jamais d'argent. En cas de doute sur une offre, vérifiez toujours son statut avant de postuler.</div>
-</footer>
-
+<!-- Scripts Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script src="supabase-client.js"></script>
+
 <script>
-  const params = new URLSearchParams(window.location.search);
+    async function chargerOpportunites() {
+        const container = document.getElementById('liste-opportunites');
+        
+        // Récupération des données depuis Supabase
+        const { data, error } = await supabase
+            .from('opportunites')
+            .select('*')
+            .order('created_at', { ascending: false });
 
-  function lireFiltresActuels() {
-    return {
-      recherche: document.getElementById("filtre-recherche").value.trim(),
-      categorie: document.getElementById("filtre-categorie").value,
-      pays: document.getElementById("filtre-pays").value.trim(),
-    };
-  }
+        if (error) {
+            container.innerHTML = `<p>Erreur lors du chargement : ${error.message}</p>`;
+            return;
+        }
 
-  async function afficherResultats(filtres) {
-    const grille = document.getElementById("grille-resultats");
-    grille.innerHTML = '<div class="etat-message">Recherche en cours...</div>';
+        if (data.length === 0) {
+            container.innerHTML = "<p>Aucune opportunité pour le moment.</p>";
+            return;
+        }
 
-    const opportunites = await recupererOpportunitesVerifiees(filtres);
-
-    if (opportunites.length === 0) {
-      grille.innerHTML = '<div class="etat-message">Aucune opportunité ne correspond à ces critères pour le moment.</div>';
-      return;
+        container.innerHTML = ""; // Vider le texte "Chargement..."
+        
+        // Affichage dynamique
+        data.forEach(opp => {
+            const carte = document.createElement('div');
+            carte.className = 'carte-opp';
+            carte.innerHTML = `
+                <span class="badge">${opp.categorie || 'Autre'}</span>
+                <h3>${opp.titre}</h3>
+                <p>${opp.description}</p>
+                <a href="${opp.lien}" target="_blank" class="bouton">Postuler</a>
+            `;
+            container.appendChild(carte);
+        });
     }
-    grille.innerHTML = opportunites.map(carteOpportuniteHTML).join("");
-  }
 
-  // Pré-remplir les filtres depuis l'URL (ex: venant de la page d'accueil)
-  if (params.get("recherche")) document.getElementById("filtre-recherche").value = params.get("recherche");
-  if (params.get("categorie")) document.getElementById("filtre-categorie").value = params.get("categorie");
-  if (params.get("pays")) document.getElementById("filtre-pays").value = params.get("pays");
-
-  document.getElementById("form-filtres").addEventListener("submit", (e) => {
-    e.preventDefault();
-    afficherResultats(lireFiltresActuels());
-  });
-
-  afficherResultats(lireFiltresActuels());
+    chargerOpportunites();
 </script>
 
 </body>
