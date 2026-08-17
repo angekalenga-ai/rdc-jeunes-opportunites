@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RJO | Gestion Opportunités</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f9; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: #0756B8; color: white; }
+        .btn-del { color: #D71920; cursor: pointer; font-weight: bold; }
+        .btn-edit { color: #0756B8; cursor: pointer; margin-right: 15px; font-weight: bold; }
+        h2 { color: #102A68; }
+    </style>
+</head>
+<body>
+
+    <h2>Gestion des opportunités</h2>
+    <table id="oppTable">
+        <thead>
+            <tr>
+                <th>Titre</th>
+                <th>Catégorie</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="oppBody"></tbody>
+    </table>
+
+    <script>
+        // CONFIGURATION : Remplacez par vos clés Supabase réelles
+        const SUPABASE_URL = 'https://tvikvysdfbrcwmnnlgwp.supabase.co/rest/v1/';
+        const SUPABASE_KEY = 'sb_publishable_xp-8aSpz3R7vRZ0aYp5hVw_7-UHoQXy';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function loadOpp() {
+            const { data, error } = await supabase.from('opportunites').select('*');
+            if (error) { 
+                alert('Erreur : ' + error.message); 
+                return; 
+            }
+            
+            const body = document.getElementById('oppBody');
+            body.innerHTML = '';
+            
+            if (data.length === 0) {
+                body.innerHTML = '<tr><td colspan="3" style="text-align: center;">Aucune opportunité trouvée.</td></tr>';
+                return;
+            }
+
+            data.forEach(opp => {
+                const row = `<tr>
+                    <td>${opp.titre}</td>
+                    <td>${opp.categorie}</td>
+                    <td>
+                        <span class="btn-edit" onclick="editOpp(${opp.id})">Éditer</span>
+                        <span class="btn-del" onclick="deleteOpp(${opp.id})">Supprimer</span>
+                    </td>
+                </tr>`;
+                body.innerHTML += row;
+            });
+        }
+
+        async function deleteOpp(id) {
+            if(!confirm('Confirmer la suppression de cette opportunité ?')) return;
+            const { error } = await supabase.from('opportunites').delete().eq('id', id);
+            if (error) {
+                alert('Erreur : ' + error.message);
+            } else {
+                loadOpp();
+            }
+        }
+
+        function editOpp(id) {
+            window.location.href = 'edit_opp.html?id=' + id;
+        }
+
+        loadOpp();
+    </script>
+</body>
+</html>

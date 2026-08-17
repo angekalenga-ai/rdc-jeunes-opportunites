@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>RJO | Éditer Opportunité</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f9; }
+        form { background: white; padding: 20px; border-radius: 8px; }
+        input, select, textarea { width: 100%; margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { background: #0756B8; color: white; padding: 10px; border: none; border-radius: 4px; width: 100%; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h2>Modifier l'opportunité</h2>
+    <form id="editForm">
+        <input type="text" id="titre" placeholder="Titre" required>
+        <select id="categorie">
+            <option value="Emploi">Emploi</option>
+            <option value="Stage">Stage</option>
+            <option value="Bourse">Bourse</option>
+            <option value="Formation">Formation</option>
+        </select>
+        <input type="text" id="organisme" placeholder="Organisme" required>
+        <input type="url" id="lien_officiel" placeholder="Lien officiel" required>
+        <textarea id="description" placeholder="Description"></textarea>
+        
+        <button type="submit">Enregistrer les modifications</button>
+    </form>
+
+    <script>
+        const SUPABASE_URL = 'https://tvikvysdfbrcwmnnlgwp.supabase.co/rest/v1/';
+        const SUPABASE_KEY = 'sb_publishable_xp-8aSpz3R7vRZ0aYp5hVw_7-UHoQXy';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const oppId = urlParams.get('id');
+
+        // Charger les données existantes
+        async function fetchOpp() {
+            const { data, error } = await supabase.from('opportunites').select('*').eq('id', oppId).single();
+            if (error) { alert('Erreur : ' + error.message); return; }
+            
+            document.getElementById('titre').value = data.titre;
+            document.getElementById('categorie').value = data.categorie;
+            document.getElementById('organisme').value = data.organisme;
+            document.getElementById('lien_officiel').value = data.lien_officiel;
+            document.getElementById('description').value = data.description;
+        }
+
+        // Sauvegarder les modifications
+        document.getElementById('editForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const { error } = await supabase.from('opportunites').update({
+                titre: document.getElementById('titre').value,
+                categorie: document.getElementById('categorie').value,
+                organisme: document.getElementById('organisme').value,
+                lien_officiel: document.getElementById('lien_officiel').value,
+                description: document.getElementById('description').value
+            }).eq('id', oppId);
+
+            if (error) alert('Erreur : ' + error.message);
+            else { alert('Modification réussie !'); window.location.href = 'admin_list_opp.html'; }
+        });
+
+        fetchOpp();
+    </script>
+</body>
+</html>

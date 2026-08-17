@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RJO | Ajout Opportunité</title>
+    <!-- Chargement du client Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f9; }
+        form { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        input, select, textarea { width: 100%; margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;}
+        button { background: #0756B8; color: white; padding: 10px; border: none; border-radius: 4px; width: 100%; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h2>Ajouter une opportunité</h2>
+    <form id="oppForm">
+        <input type="text" id="titre" placeholder="Titre de l'opportunité" required>
+        <select id="categorie">
+            <option value="Emploi">Emploi</option>
+            <option value="Stage">Stage</option>
+            <option value="Bourse">Bourse</option>
+            <option value="Formation">Formation</option>
+        </select>
+        <input type="text" id="organisme" placeholder="Organisme" required>
+        <input type="text" id="pays" placeholder="Pays" value="RDC">
+        <input type="date" id="date_limite">
+        <textarea id="description" placeholder="Description courte"></textarea>
+        <input type="url" id="lien_officiel" placeholder="Lien officiel" required>
+        
+        <button type="submit">Publier l'opportunité</button>
+    </form>
+
+    <script>
+        // CONFIGURATION : Remplacez par vos clés Supabase réelles
+        const SUPABASE_URL = 'VOTRE_SUPABASE_URL';
+        const SUPABASE_KEY = 'VOTRE_SUPABASE_ANON_KEY';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        document.getElementById('oppForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                titre: document.getElementById('titre').value,
+                categorie: document.getElementById('categorie').value,
+                organisme: document.getElementById('organisme').value,
+                pays: document.getElementById('pays').value,
+                date_limite: document.getElementById('date_limite').value,
+                description: document.getElementById('description').value,
+                lien_officiel: document.getElementById('lien_officiel').value,
+                statut_verification: 'a_verifier' // Par défaut
+            };
+
+            const { error } = await supabase.from('opportunites').insert([data]);
+            
+            if (error) {
+                alert('Erreur : ' + error.message);
+            } else {
+                alert('Opportunité ajoutée avec succès !');
+                document.getElementById('oppForm').reset();
+            }
+        });
+    </script>
+</body>
+</html>
