@@ -129,5 +129,5 @@ function traduireErreurAuth(message) {
     "Password should be at least 6 characters": "Le mot de passe doit contenir au moins 6 caractères.",
     "Email not confirmed": "Confirme ton email avant de te connecter (vérifie ta boîte mail).",
   };
-  return table[message] || "Une erreur est survenue. Réessaie dans un instant.";
+  return table[message] || message || "Une erreur est survenue. Réessaie dans un instant.";
 }
