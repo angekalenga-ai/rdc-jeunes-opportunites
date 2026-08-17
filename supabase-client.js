@@ -80,3 +80,49 @@ function basculerMenuMobile() {
   const nav = document.getElementById("nav-mobile");
   if (nav) nav.classList.toggle("ouvert");
 }
+
+/* -------- AUTHENTIFICATION -------- */
+
+async function inscrire(email, motDePasse, nomComplet) {
+  return await rjoClient.auth.signUp({
+    email,
+    password: motDePasse,
+    options: { data: { nom_complet: nomComplet } },
+  });
+}
+
+async function connecter(email, motDePasse) {
+  return await rjoClient.auth.signInWithPassword({ email, password: motDePasse });
+}
+
+async function deconnecter() {
+  return await rjoClient.auth.signOut();
+}
+
+async function recupererSessionActuelle() {
+  const { data } = await rjoClient.auth.getSession();
+  return data.session;
+}
+
+async function recupererProfil(userId) {
+  const { data, error } = await rjoClient
+    .from("profiles")
+    .select("nom_complet, role")
+    .eq("id", userId)
+    .single();
+  if (error) {
+    console.error("Erreur récupération profil :", error);
+    return null;
+  }
+  return data;
+}
+
+function traduireErreurAuth(message) {
+  const table = {
+    "Invalid login credentials": "Email ou mot de passe incorrect.",
+    "User already registered": "Un compte existe déjà avec cet email.",
+    "Password should be at least 6 characters": "Le mot de passe doit contenir au moins 6 caractères.",
+    "Email not confirmed": "Confirme ton email avant de te connecter (vérifie ta boîte mail).",
+  };
+  return table[message] || "Une erreur est survenue. Réessaie dans un instant.";
+}

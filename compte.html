@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon compte — RDC Jeunes Opportunités</title>
+<meta name="description" content="Crée un compte ou connecte-toi pour suivre tes opportunités favorites sur RDC Jeunes Opportunités.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="entete">
+  <div class="conteneur">
+    <a class="logo" href="index.html"><img src="images/logo-rjo.png" alt="RDC Jeunes Opportunités"></a>
+    <nav class="nav-principale">
+      <a href="index.html">Accueil</a>
+      <a href="opportunites.html">Opportunités</a>
+      <a href="https://rdcjeuneopportunites.blogspot.com" target="_blank" rel="noopener">Articles</a>
+      <a href="apropos.html">À propos</a>
+      <a href="contact.html">Contact</a>
+      <a href="compte.html">Connexion</a>
+    </nav>
+    <button class="menu-mobile-bouton" onclick="basculerMenuMobile()">Menu</button>
+  </div>
+  <div class="conteneur">
+    <nav class="nav-mobile" id="nav-mobile">
+      <a href="index.html">Accueil</a>
+      <a href="opportunites.html">Opportunités</a>
+      <a href="https://rdcjeuneopportunites.blogspot.com" target="_blank" rel="noopener">Articles</a>
+      <a href="apropos.html">À propos</a>
+      <a href="contact.html">Contact</a>
+      <a href="compte.html">Connexion</a>
+    </nav>
+  </div>
+</header>
+
+<section class="section">
+  <div class="conteneur" style="display:flex; justify-content:center;">
+
+    <!-- Vue : non connecté -->
+    <div id="vue-deconnecte" style="display:none; width:100%; max-width:440px;">
+      <div class="onglets-auth">
+        <button class="onglet-auth actif" id="onglet-connexion" onclick="afficherOnglet('connexion')">Connexion</button>
+        <button class="onglet-auth" id="onglet-inscription" onclick="afficherOnglet('inscription')">Créer un compte</button>
+      </div>
+
+      <div id="zone-message"></div>
+
+      <!-- Formulaire connexion -->
+      <form class="carte-auth" id="form-connexion" onsubmit="return false;">
+        <div class="champ">
+          <label>Email</label>
+          <input type="email" id="connexion-email" required>
+        </div>
+        <div class="champ">
+          <label>Mot de passe</label>
+          <input type="password" id="connexion-motdepasse" required>
+        </div>
+        <button class="bouton bouton-primaire" style="width:100%;" onclick="gererConnexion()">Se connecter</button>
+      </form>
+
+      <!-- Formulaire inscription -->
+      <form class="carte-auth" id="form-inscription" style="display:none;" onsubmit="return false;">
+        <div class="champ">
+          <label>Nom complet</label>
+          <input type="text" id="inscription-nom" required>
+        </div>
+        <div class="champ">
+          <label>Email</label>
+          <input type="email" id="inscription-email" required>
+        </div>
+        <div class="champ">
+          <label>Mot de passe (min. 6 caractères)</label>
+          <input type="password" id="inscription-motdepasse" minlength="6" required>
+        </div>
+        <button class="bouton bouton-primaire" style="width:100%;" onclick="gererInscription()">Créer mon compte</button>
+      </form>
+    </div>
+
+    <!-- Vue : connecté -->
+    <div id="vue-connecte" style="display:none; width:100%; max-width:440px;">
+      <div class="carte-auth">
+        <div class="profil-connecte">
+          <div class="avatar-initiale" id="avatar-initiale">?</div>
+          <h3 id="profil-nom">—</h3>
+          <p style="color:var(--gris-texte); font-size:0.9rem;" id="profil-email">—</p>
+          <span class="badge-categorie" id="profil-role">utilisateur</span>
+        </div>
+        <button class="bouton bouton-secondaire" style="width:100%;" onclick="gererDeconnexion()">Se déconnecter</button>
+      </div>
+      <p style="text-align:center; color:var(--gris-texte-clair); font-size:0.85rem; margin-top:16px;">
+        Favoris, candidatures et tableau de bord arrivent bientôt.
+      </p>
+    </div>
+
+    <!-- Vue : chargement -->
+    <div id="vue-chargement" class="etat-message">Vérification de la session...</div>
+
+  </div>
+</section>
+
+<footer class="pied">
+  <div class="conteneur">
+    <div class="pied-colonne">
+      <h4>RDC Jeunes Opportunités</h4>
+      <a href="apropos.html">À propos</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="pied-colonne">
+      <h4>Explorer</h4>
+      <a href="opportunites.html">Toutes les opportunités</a>
+      <a href="https://rdcjeuneopportunites.blogspot.com" target="_blank" rel="noopener">Articles & conseils</a>
+    </div>
+    <div class="pied-colonne">
+      <h4>Contact</h4>
+      <a href="mailto:rdcjeuneopportunites@gmail.com">rdcjeuneopportunites@gmail.com</a>
+    </div>
+    <div class="pied-colonne">
+      <h4>Réseaux</h4>
+      <a class="reseau-lien" href="https://www.facebook.com/p/RDC-Jeune-Opportunit%C3%A9s-61581809061722/" target="_blank" rel="noopener"><img src="https://cdn.simpleicons.org/facebook/FFFFFF" width="18" height="18" alt="">Facebook</a>
+      <a class="reseau-lien" href="https://www.instagram.com/rdcjeuneopportunites/" target="_blank" rel="noopener"><img src="https://cdn.simpleicons.org/instagram/FFFFFF" width="18" height="18" alt="">Instagram</a>
+      <a class="reseau-lien" href="https://wa.me/243852062070" target="_blank" rel="noopener"><img src="https://cdn.simpleicons.org/whatsapp/FFFFFF" width="18" height="18" alt="">WhatsApp</a>
+    </div>
+  </div>
+  <div class="pied-bas">RJO ne demande jamais d'argent. En cas de doute sur une offre, vérifiez toujours son statut avant de postuler.</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="supabase-client.js"></script>
+<script>
+  function afficherMessage(texte, type) {
+    const zone = document.getElementById("zone-message");
+    zone.innerHTML = `<div class="message-${type}">${texte}</div>`;
+  }
+  function effacerMessage() {
+    document.getElementById("zone-message").innerHTML = "";
+  }
+
+  function afficherOnglet(nom) {
+    effacerMessage();
+    const estConnexion = nom === "connexion";
+    document.getElementById("onglet-connexion").classList.toggle("actif", estConnexion);
+    document.getElementById("onglet-inscription").classList.toggle("actif", !estConnexion);
+    document.getElementById("form-connexion").style.display = estConnexion ? "block" : "none";
+    document.getElementById("form-inscription").style.display = estConnexion ? "none" : "block";
+  }
+
+  async function gererConnexion() {
+    effacerMessage();
+    const email = document.getElementById("connexion-email").value.trim();
+    const motDePasse = document.getElementById("connexion-motdepasse").value;
+    const { error } = await connecter(email, motDePasse);
+    if (error) {
+      afficherMessage(traduireErreurAuth(error.message), "erreur");
+      return;
+    }
+    await afficherVueSelonSession();
+  }
+
+  async function gererInscription() {
+    effacerMessage();
+    const nom = document.getElementById("inscription-nom").value.trim();
+    const email = document.getElementById("inscription-email").value.trim();
+    const motDePasse = document.getElementById("inscription-motdepasse").value;
+    const { data, error } = await inscrire(email, motDePasse, nom);
+    if (error) {
+      afficherMessage(traduireErreurAuth(error.message), "erreur");
+      return;
+    }
+    if (data.session) {
+      await afficherVueSelonSession();
+    } else {
+      afficherMessage("Compte créé ! Vérifie ta boîte mail pour confirmer ton adresse avant de te connecter.", "succes");
+    }
+  }
+
+  async function gererDeconnexion() {
+    await deconnecter();
+    await afficherVueSelonSession();
+  }
+
+  async function afficherVueSelonSession() {
+    document.getElementById("vue-chargement").style.display = "none";
+    const session = await recupererSessionActuelle();
+
+    if (!session) {
+      document.getElementById("vue-connecte").style.display = "none";
+      document.getElementById("vue-deconnecte").style.display = "block";
+      return;
+    }
+
+    document.getElementById("vue-deconnecte").style.display = "none";
+    document.getElementById("vue-connecte").style.display = "block";
+
+    const profil = await recupererProfil(session.user.id);
+    const nomAffiche = profil?.nom_complet || session.user.email;
+    document.getElementById("profil-nom").textContent = nomAffiche;
+    document.getElementById("profil-email").textContent = session.user.email;
+    document.getElementById("profil-role").textContent = profil?.role || "utilisateur";
+    document.getElementById("avatar-initiale").textContent = nomAffiche.charAt(0).toUpperCase();
+  }
+
+  afficherVueSelonSession();
+</script>
+</body>
+</html>
