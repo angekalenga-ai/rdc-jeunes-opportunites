@@ -87,7 +87,12 @@ async function inscrire(email, motDePasse, nomComplet) {
   return await rjoClient.auth.signUp({
     email,
     password: motDePasse,
-    options: { data: { nom_complet: nomComplet } },
+    options: {
+      data: {
+        nom_complet: nomComplet
+      },
+      emailRedirectTo: "https://angekalenga-ai.github.io/rdc-jeunes-opportunites/compte.html"
+    }
   });
 }
 
