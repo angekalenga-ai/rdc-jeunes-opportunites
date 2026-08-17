@@ -3,73 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Opportunités | RDC Jeunes Opportunités</title>
-    <link rel="stylesheet" href="style.css">
+    <title>RDC Jeunes Opportunités - Opportunités en cours</title>
+    <!-- SDK Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        .grid-opp { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding: 20px; }
-        .carte-opp { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-left: 5px solid #0756B8; }
-        .carte-opp h3 { color: #102A68; margin-top: 0; }
-        .badge { display: inline-block; background: #e0e7ff; color: #0756B8; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; margin-bottom: 10px; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f4f6f9;
+            color: #1f2937;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #1e3a8a;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .opportunite-card {
+            background: #ffffff;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #2563eb;
+        }
+        .card-category {
+            display: inline-block;
+            background: #eff6ff;
+            color: #1d4ed8;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .opportunite-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+            color: #111827;
+        }
+        .opportunite-card p {
+            margin: 0 0 15px 0;
+            color: #4b5563;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .btn-primary {
+            display: inline-block;
+            background: #2563eb;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+        .loading, .empty {
+            text-align: center;
+            color: #6b7280;
+            padding: 30px;
+            font-size: 15px;
+        }
     </style>
 </head>
 <body>
 
-<header class="entete">
-    <!-- Votre header existant -->
-</header>
+    <div class="container">
+        <h1>Opportunités en cours</h1>
 
-<section class="section">
-    <div class="conteneur">
-        <h2>Opportunités en cours</h2>
-        <div id="liste-opportunites" class="grid-opp">
-            <p>Chargement des opportunités...</p>
+        <!-- Conteneur cible obligatoire pour le script -->
+        <div id="liste-opportunites">
+            <div class="loading">Chargement des opportunités...</div>
         </div>
     </div>
-</section>
 
-<!-- Scripts Supabase -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
-<script src="supabase-client.js"></script>
-
-<script>
-    async function chargerOpportunites() {
-        const container = document.getElementById('liste-opportunites');
+    <script>
+        // 1. Remplacez ces valeurs par vos propres identifiants Supabase (Project URL & Anon Key)
+        const SUPABASE_URL = 'VOTRE_SUPABASE_URL';
+        const SUPABASE_ANON_KEY = 'VOTRE_SUPABASE_ANON_KEY';
         
-        // Récupération des données depuis Supabase
-        const { data, error } = await supabase
-            .from('opportunites')
-            .select('*')
-            .order('created_at', { ascending: false });
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        if (error) {
-            container.innerHTML = `<p>Erreur lors du chargement : ${error.message}</p>`;
-            return;
+        // 2. Fonction de chargement des données
+        async function chargerOpportunites() {
+            const container = document.getElementById('liste-opportunites');
+            
+            try {
+                const { data, error } = await supabase
+                    .from('opportunites')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    throw error;
+                }
+
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<div class="empty">Aucune opportunité disponible pour le moment.</div>';
+                    return;
+                }
+
+                container.innerHTML = '';
+                
+                data.forEach(opp => {
+                    const card = document.createElement('div');
+                    card.className = 'opportunite-card';
+                    card.innerHTML = `
+                        <div class="card-category">${opp.categorie}</div>
+                        <h3>${opp.titre}</h3>
+                        <p>${opp.description}</p>
+                        <a href="${opp.lien}" target="_blank" class="btn-primary">Voir l'opportunité</a>
+                    `;
+                    container.appendChild(card);
+                });
+
+            } catch (err) {
+                console.error('Erreur Supabase :', err.message);
+                container.innerHTML = '<div class="empty" style="color: #dc2626;">Erreur lors du chargement des opportunités.</div>';
+            }
         }
 
-        if (data.length === 0) {
-            container.innerHTML = "<p>Aucune opportunité pour le moment.</p>";
-            return;
-        }
-
-        container.innerHTML = ""; // Vider le texte "Chargement..."
-        
-        // Affichage dynamique
-        data.forEach(opp => {
-            const carte = document.createElement('div');
-            carte.className = 'carte-opp';
-            carte.innerHTML = `
-                <span class="badge">${opp.categorie || 'Autre'}</span>
-                <h3>${opp.titre}</h3>
-                <p>${opp.description}</p>
-                <a href="${opp.lien}" target="_blank" class="bouton">Postuler</a>
-            `;
-            container.appendChild(carte);
-        });
-    }
-
-    chargerOpportunites();
-</script>
-
+        // Lancer l'affichage au chargement de la page
+        document.addEventListener('DOMContentLoaded', chargerOpportunites);
+    </script>
 </body>
 </html>
