@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RJO | Back-Office</title>
+    <style>
+        body { font-family: 'IBM Plex Sans', sans-serif; padding: 20px; background: #f4f4f9; }
+        h1 { color: #102A68; text-align: center; margin-bottom: 30px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; max-width: 600px; margin: 0 auto; }
+        .card { 
+            background: white; 
+            padding: 25px 15px; 
+            border-radius: 10px; 
+            text-align: center; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+            text-decoration: none; 
+            color: #0756B8; 
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        .card:active { background: #e0e0e0; }
+        .card.disabled { color: #aaa; pointer-events: none; background: #f9f9f9; }
+    </style>
+</head>
+<body>
+
+    <h1>Tableau de bord RJO</h1>
+    <div class="grid">
+        <a href="admin_list_opp.html" class="card">Gérer Opportunités</a>
+        <a href="admin_add_opp.html" class="card">+ Ajouter Opportunité</a>
+        <a href="admin_list_articles.html" class="card">Gérer Articles</a>
+        <a href="admin_add_article.html" class="card">+ Ajouter Article</a>
+    </div>
+
+</body>
+</html>

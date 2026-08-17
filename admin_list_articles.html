@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RJO | Gestion Articles</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f9; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: #0756B8; color: white; }
+        .btn-del { color: #D71920; cursor: pointer; font-weight: bold; }
+        h2 { color: #102A68; }
+    </style>
+</head>
+<body>
+
+    <h2>Gestion des articles</h2>
+    <table id="articleTable">
+        <thead>
+            <tr>
+                <th>Titre</th>
+                <th>Catégorie</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="articleBody"></tbody>
+    </table>
+
+    <script>
+        const SUPABASE_URL = 'VOTRE_SUPABASE_URL';
+        const SUPABASE_KEY = 'VOTRE_SUPABASE_ANON_KEY';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function loadArticles() {
+            const { data, error } = await supabase.from('articles').select('*').order('created_at', { ascending: false });
+            if (error) { 
+                alert('Erreur : ' + error.message); 
+                return; 
+            }
+            
+            const body = document.getElementById('articleBody');
+            body.innerHTML = '';
+            
+            if (data.length === 0) {
+                body.innerHTML = '<tr><td colspan="3" style="text-align: center;">Aucun article trouvé.</td></tr>';
+                return;
+            }
+
+            data.forEach(art => {
+                const row = `<tr>
+                    <td>${art.titre}</td>
+                    <td>${art.categorie}</td>
+                    <td>
+                        <span class="btn-del" onclick="deleteArticle(${art.id})">Supprimer</span>
+                    </td>
+                </tr>`;
+                body.innerHTML += row;
+            });
+        }
+
+        async function deleteArticle(id) {
+            if(!confirm('Confirmer la suppression de cet article ?')) return;
+            const { error } = await supabase.from('articles').delete().eq('id', id);
+            if (error) {
+                alert('Erreur : ' + error.message);
+            } else {
+                loadArticles();
+            }
+        }
+
+        loadArticles();
+    </script>
+</body>
+</html>
