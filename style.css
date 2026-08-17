@@ -417,6 +417,37 @@ img { max-width: 100%; display: block; }
 .lien-contact a { display: inline-flex; align-items: center; gap: 8px; }
 .lien-contact a img { display: block; }
 
+.logo img { height: 42px; width: auto; display: block; }
+.logo { gap: 10px !important; }
+
+.carte-fondateur {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  border: 1px solid var(--gris-bordure);
+  border-radius: var(--rayon);
+  padding: 24px;
+  box-shadow: var(--ombre);
+  max-width: 560px;
+  flex-wrap: wrap;
+}
+.photo-fondateur {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--or);
+  flex-shrink: 0;
+}
+.carte-fondateur h3 { margin: 0 0 2px; font-size: 1.05rem; }
+.carte-fondateur .role {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--bleu-rdc);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
 /* -------- FOOTER -------- */
 .pied {
   background: var(--bleu-nuit);
