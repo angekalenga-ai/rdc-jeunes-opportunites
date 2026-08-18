@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Articles | RDC Jeunes Opportunités</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: sans-serif; background: #f8fafc; padding: 20px; }
+        .container { max-width: 800px; margin: auto; }
+        .article-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .article-img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px; }
+        h1 { color: #1e293b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Nos Articles</h1>
+        <div id="articles-container">Chargement...</div>
+    </div>
+
+    <script>
+        // Remplacez par vos vraies clés (celles que vous avez dans opportunites.html)
+        const supabase = supabase.createClient('VOTRE_SUPABASE_URL', 'VOTRE_ANON_KEY');
+
+        async function fetchArticles() {
+            const { data, error } = await supabase
+                .from('articles')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            const container = document.getElementById('articles-container');
+            if (error) { container.innerHTML = "Erreur de chargement."; return; }
+            
+            container.innerHTML = data.length === 0 ? "Aucun article pour le moment." : '';
+            
+            data.forEach(art => {
+                const card = document.createElement('div');
+                card.className = 'article-card';
+                card.innerHTML = `
+                    ${art.image_url ? `<img src="${art.image_url}" class="article-img">` : ''}
+                    <span style="color: #2563eb; font-weight: bold; font-size: 12px; text-transform: uppercase;">${art.categorie}</span>
+                    <h2 style="margin: 10px 0;">${art.titre}</h2>
+                    <p style="color: #475569;">${art.resume}</p>
+                    <button onclick="alert('${art.contenu.replace(/'/g, "\\'")}')" style="background:#2563eb; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer;">Lire la suite</button>
+                `;
+                container.appendChild(card);
+            });
+        }
+        fetchArticles();
+    </script>
+</body>
+</html>
