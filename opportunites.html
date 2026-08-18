@@ -57,7 +57,7 @@
                     card.innerHTML = `
                         <span style="display:inline-block; background:#eff6ff; color:#1d4ed8; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:bold; margin-bottom:10px; text-transform:uppercase;">${opp.categorie || 'Stage'}</span>
                         <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #111827;">${opp.titre}</h3>
-                        <p style="margin: 0 0 15px 0; color: #4b5563; font-size: 14px; line-height: 1.5;">${opp.description}</p>
+                        <p style="margin: 0 0 15px 0; color: #4b5563; font-size: 14px; line-height: 1.5;">${opp.public_cible || 'Tous publics'}</p>
                         <a href="${opp.lien}" target="_blank" style="display:inline-block; background:#2563eb; color:white; padding:8px 16px; border-radius:6px; text-decoration:none; font-size:14px; font-weight:500;">Voir l'opportunité</a>
                     `;
                     container.appendChild(card);
