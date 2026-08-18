@@ -6,51 +6,68 @@
     <title>Actualités | RDC Jeunes Opportunités</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f1f5f9; margin: 0; padding: 20px; }
+        body { font-family: sans-serif; background: #f1f5f9; padding: 20px; }
         .container { max-width: 800px; margin: auto; }
-        h1 { color: #1e293b; text-align: center; margin-bottom: 40px; }
-        .article-card { background: white; border-radius: 16px; padding: 25px; margin-bottom: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        .article-img { width: 100%; height: 250px; object-fit: cover; border-radius: 12px; margin-bottom: 20px; }
-        .cat-tag { background: #dbeafe; color: #1e40af; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; }
-        h2 { color: #0f172a; margin: 15px 0; }
-        p { color: #475569; line-height: 1.6; }
+        .error-box { background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 8px; margin-bottom: 15px; word-break: break-all; }
+        .info-box { background: #fef3c7; color: #92400e; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .article-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Actualités & Articles</h1>
-        <div id="articles-list">Chargement des articles...</div>
+        <h1>Actualités</h1>
+        <div id="status" style="margin-bottom: 20px; font-weight: bold; color: #555;">Connexion en cours...</div>
+        <div id="articles-list"></div>
     </div>
 
     <script>
-        const supabase = supabase.createClient('https://tvikvysdfbrcwmnnlgwp.supabase.co', 'sb_publishable_xp-8aSpz3R7vRZ0aYp5hVw_7-UHoQXy');
+        // Remplace par tes vraies clés Supabase
+        const SUPABASE_URL = 'VOTRE_SUPABASE_URL';
+        const SUPABASE_ANON_KEY = 'VOTRE_ANON_KEY';
 
-        async function loadArticles() {
-            const { data, error } = await supabase
-                .from('articles')
-                .select('*')
-                .eq('statut', 'Publié') // N'affiche que ceux que tu as marqués comme publiés
-                .order('created_at', { ascending: false });
+        const statusEl = document.getElementById('status');
+        const listEl = document.getElementById('articles-list');
 
-            const list = document.getElementById('articles-list');
-            if (error) { list.innerHTML = "Erreur de chargement."; return; }
-            if (data.length === 0) { list.innerHTML = "Aucun article pour le moment."; return; }
+        try {
+            const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-            list.innerHTML = '';
-            data.forEach(art => {
-                const div = document.createElement('div');
-                div.className = 'article-card';
-                div.innerHTML = `
-                    ${art.image_url ? `<img src="${art.image_url}" class="article-img">` : ''}
-                    <span class="cat-tag">${art.categorie}</span>
-                    <h2>${art.titre}</h2>
-                    <p>${art.resume}</p>
-                    <p style="font-size: 0.9rem; color: #64748b;"><em>${art.contenu.substring(0, 150)}...</em></p>
-                `;
-                list.appendChild(div);
-            });
+            async function load() {
+                statusEl.innerText = "Interrogation de la table 'articles'...";
+                
+                // On récupère tout sans filtre pour voir si la table répond
+                const { data, error } = await supabaseClient
+                    .from('articles')
+                    .select('*');
+
+                if (error) {
+                    statusEl.innerHTML = `<div class="error-box">Erreur Supabase : ${error.message} <br><small>Code: ${error.code} | Détails: ${error.details}</small></div>`;
+                    return;
+                }
+
+                if (!data || data.length === 0) {
+                    statusEl.innerHTML = `<div class="info-box">La table 'articles' est vide dans Supabase. Aucun article n'a encore été enregistré.</div>`;
+                    return;
+                }
+
+                statusEl.innerText = `${data.length} article(s) trouvé(s) !`;
+                listEl.innerHTML = '';
+
+                data.forEach(art => {
+                    const div = document.createElement('div');
+                    div.className = 'article-card';
+                    div.innerHTML = `
+                        <span style="background:#e0f2fe; color:#0369a1; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:bold;">${art.categorie || 'Général'}</span>
+                        <h2 style="margin: 10px 0; color:#1e293b;">${art.titre || 'Sans titre'}</h2>
+                        <p style="color:#475569;">${art.resume || art.contenu || 'Pas de contenu'}</p>
+                    `;
+                    listEl.appendChild(div);
+                });
+            }
+
+            load();
+        } catch (err) {
+            statusEl.innerHTML = `<div class="error-box">Erreur critique JS : ${err.message}</div>`;
         }
-        loadArticles();
     </script>
 </body>
 </html>
