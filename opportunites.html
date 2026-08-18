@@ -52,16 +52,18 @@
                 container.innerHTML = '';
                 
                 data.forEach(opp => {
-                    const card = document.createElement('div');
-                    card.style.cssText = "background: #ffffff; padding: 20px; margin-bottom: 15px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 4px solid #2563eb;";
-                    card.innerHTML = `
-                        <span style="display:inline-block; background:#eff6ff; color:#1d4ed8; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:bold; margin-bottom:10px; text-transform:uppercase;">${opp.categorie || 'Stage'}</span>
-                        <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #111827;">${opp.titre}</h3>
-                        <p style="margin: 0 0 15px 0; color: #4b5563; font-size: 14px; line-height: 1.5;">${opp.public_cible || 'Tous publics'}</p>
-                        <a href="${opp.lien}" target="_blank" style="display:inline-block; background:#2563eb; color:white; padding:8px 16px; border-radius:6px; text-decoration:none; font-size:14px; font-weight:500;">Voir l'opportunité</a>
-                    `;
-                    container.appendChild(card);
-                });
+    const card = document.createElement('div');
+    card.style.cssText = "background: #ffffff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; border-left: 4px solid #2563eb;";
+    
+    card.innerHTML = `
+        <span style="background: #eff6ff; color: #2563eb; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; text-transform: uppercase;">${opp.categorie || 'Opportunité'}</span>
+        <h3 style="margin: 12px 0 8px 0; color: #1e293b; font-size: 18px;">${opp.titre}</h3>
+        <p style="color: #64748b; font-size: 14px; margin-bottom: 16px;"><strong>Public cible :</strong> ${opp.public_cible || 'Tous publics'}</p>
+        <a href="${opp.lien_officiel || '#'}" target="_blank" style="display: inline-block; background: #2563eb; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 550;">Voir l'opportunité ↗</a>
+    `;
+    container.appendChild(card);
+});
+
 
             } catch (err) {
                 // Affiche l'erreur en rouge vif sur le site si quelque chose bloque
