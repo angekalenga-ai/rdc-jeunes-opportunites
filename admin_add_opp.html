@@ -1,67 +1,146 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RJO | Ajout Opportunité</title>
-    <!-- Chargement du client Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f4f9; }
-        form { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        input, select, textarea { width: 100%; margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;}
-        button { background: #0756B8; color: white; padding: 10px; border: none; border-radius: 4px; width: 100%; cursor: pointer; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ajouter une opportunité — Back-Office RJO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <h2>Ajouter une opportunité</h2>
-    <form id="oppForm">
-        <input type="text" id="titre" placeholder="Titre de l'opportunité" required>
-        <select id="categorie">
-            <option value="Emploi">Emploi</option>
-            <option value="Stage">Stage</option>
-            <option value="Bourse">Bourse</option>
-            <option value="Formation">Formation</option>
+<div class="barre-admin">
+  <div class="conteneur">
+    <span class="titre-admin">RJO · Back-Office</span>
+    <div>
+      <a href="admin_dashboard.html">← Tableau de bord</a>
+    </div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="conteneur">
+    <div class="section-titre"><h2>Ajouter une opportunité</h2></div>
+
+    <div id="zone-message"></div>
+
+    <form class="carte-admin" id="form-opp" onsubmit="return false;">
+      <div class="champ">
+        <label>Titre</label>
+        <input type="text" id="titre" required>
+      </div>
+      <div class="champ">
+        <label>Catégorie</label>
+        <select id="categorie" required>
+          <option value="emploi">Emploi</option>
+          <option value="stage">Stage</option>
+          <option value="bourse">Bourse</option>
+          <option value="formation">Formation</option>
+          <option value="concours">Concours</option>
+          <option value="entrepreneuriat">Entrepreneuriat</option>
+          <option value="financement">Financement</option>
+          <option value="programme_international">Programme international</option>
         </select>
-        <input type="text" id="organisme" placeholder="Organisme" required>
-        <input type="text" id="pays" placeholder="Pays" value="RDC">
+      </div>
+      <div class="champ">
+        <label>Organisme</label>
+        <input type="text" id="organisme" placeholder="Nom de l'organisme" required>
+      </div>
+      <div class="champ">
+        <label>Pays</label>
+        <input type="text" id="pays" value="RDC">
+      </div>
+      <div class="champ">
+        <label>Public cible</label>
+        <input type="text" id="public_cible" placeholder="Ex : Étudiants niveau Bac+3">
+      </div>
+      <div class="champ">
+        <label>Date limite</label>
         <input type="date" id="date_limite">
-        <textarea id="description" placeholder="Description courte"></textarea>
-        <input type="url" id="lien_officiel" placeholder="Lien officiel" required>
-        
-        <button type="submit">Publier l'opportunité</button>
+      </div>
+      <div class="champ">
+        <label>Conditions</label>
+        <textarea id="conditions" rows="3"></textarea>
+      </div>
+      <div class="champ">
+        <label>Avantages</label>
+        <textarea id="avantages" rows="3"></textarea>
+      </div>
+      <div class="champ">
+        <label>Procédure officielle</label>
+        <textarea id="procedure_officielle" rows="2"></textarea>
+      </div>
+      <div class="champ">
+        <label>Lien officiel (source)</label>
+        <input type="url" id="lien_officiel" required>
+      </div>
+      <div class="champ">
+        <label>Statut de vérification</label>
+        <select id="statut">
+          <option value="a_verifier">À vérifier</option>
+          <option value="en_verification">En vérification</option>
+          <option value="verifiee">Vérifiée</option>
+          <option value="expiree">Expirée</option>
+        </select>
+      </div>
+      <div class="champ">
+        <label>Notes internes (non visibles publiquement)</label>
+        <textarea id="notes_internes" rows="2"></textarea>
+      </div>
+
+      <button class="bouton bouton-primaire" style="width:100%;" onclick="gererAjoutOpportunite()">Enregistrer l'opportunité</button>
     </form>
+  </div>
+</section>
 
-    <script>
-        // CONFIGURATION : Remplacez par vos clés Supabase réelles
-        const SUPABASE_URL = 'https://tvikvysdfbrcwmnnlgwp.supabase.co/rest/v1/';
-        const SUPABASE_KEY = 'sb_publishable_xp-8aSpz3R7vRZ0aYp5hVw_7-UHoQXy';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="supabase-client.js"></script>
+<script>
+  verifierAccesAdmin(["super_admin", "admin", "verificateur"]);
 
-        document.getElementById('oppForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const data = {
-                titre: document.getElementById('titre').value,
-                categorie: document.getElementById('categorie').value,
-                organisme: document.getElementById('organisme').value,
-                pays: document.getElementById('pays').value,
-                date_limite: document.getElementById('date_limite').value,
-                description: document.getElementById('description').value,
-                lien_officiel: document.getElementById('lien_officiel').value,
-                statut_verification: 'a_verifier' // Par défaut
-            };
+  function afficherMessage(texte, type) {
+    document.getElementById("zone-message").innerHTML = `<div class="message-${type}">${texte}</div>`;
+  }
 
-            const { error } = await supabase.from('opportunites').insert([data]);
-            
-            if (error) {
-                alert('Erreur : ' + error.message);
-            } else {
-                alert('Opportunité ajoutée avec succès !');
-                document.getElementById('oppForm').reset();
-            }
-        });
-    </script>
+  async function gererAjoutOpportunite() {
+    const titre = document.getElementById("titre").value.trim();
+    const organismeNom = document.getElementById("organisme").value.trim();
+    const lienOfficiel = document.getElementById("lien_officiel").value.trim();
+
+    if (!titre || !organismeNom || !lienOfficiel) {
+      afficherMessage("Titre, organisme et lien officiel sont obligatoires.", "erreur");
+      return;
+    }
+
+    try {
+      const organismeId = await trouverOuCreerOrganisme(organismeNom);
+
+      const { error } = await rjoClient.from("opportunites").insert({
+        titre,
+        categorie: document.getElementById("categorie").value,
+        organisme_id: organismeId,
+        pays: document.getElementById("pays").value.trim() || null,
+        public_cible: document.getElementById("public_cible").value.trim() || null,
+        date_limite: document.getElementById("date_limite").value || null,
+        conditions: document.getElementById("conditions").value.trim() || null,
+        avantages: document.getElementById("avantages").value.trim() || null,
+        procedure_officielle: document.getElementById("procedure_officielle").value.trim() || null,
+        lien_officiel: lienOfficiel,
+        statut: document.getElementById("statut").value,
+        notes_internes: document.getElementById("notes_internes").value.trim() || null,
+        date_publication: new Date().toISOString(),
+      });
+
+      if (error) throw error;
+
+      afficherMessage("Opportunité enregistrée avec succès.", "succes");
+      document.getElementById("form-opp").reset();
+    } catch (err) {
+      afficherMessage("Erreur : " + err.message, "erreur");
+    }
+  }
+</script>
 </body>
 </html>

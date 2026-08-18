@@ -1,76 +1,118 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RJO | Gestion Articles</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f4f9; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background: #0756B8; color: white; }
-        .btn-del { color: #D71920; cursor: pointer; font-weight: bold; }
-        h2 { color: #102A68; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gérer les articles — Back-Office RJO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <h2>Gestion des articles</h2>
-    <table id="articleTable">
+<div class="barre-admin">
+  <div class="conteneur">
+    <span class="titre-admin">RJO · Back-Office</span>
+    <div>
+      <a href="admin_dashboard.html">← Tableau de bord</a>
+    </div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="conteneur">
+    <div class="section-titre">
+      <h2>Articles</h2>
+      <a class="voir-tout" href="admin_add_article.html">+ Ajouter</a>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="table-admin" id="table-articles">
         <thead>
-            <tr>
-                <th>Titre</th>
-                <th>Catégorie</th>
-                <th>Actions</th>
-            </tr>
+          <tr>
+            <th>Titre</th>
+            <th>Catégorie</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
         </thead>
-        <tbody id="articleBody"></tbody>
-    </table>
+        <tbody id="corps-articles"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
 
-    <script>
-        const SUPABASE_URL = 'https://tvikvysdfbrcwmnnlgwp.supabase.co/rest/v1/';
-        const SUPABASE_KEY = 'sb_publishable_xp-8aSpz3R7vRZ0aYp5hVw_7-UHoQXy';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="supabase-client.js"></script>
+<script>
+  verifierAccesAdmin(["super_admin", "admin", "editeur"]);
 
-        async function loadArticles() {
-            const { data, error } = await supabase.from('articles').select('*').order('created_at', { ascending: false });
-            if (error) { 
-                alert('Erreur : ' + error.message); 
-                return; 
-            }
-            
-            const body = document.getElementById('articleBody');
-            body.innerHTML = '';
-            
-            if (data.length === 0) {
-                body.innerHTML = '<tr><td colspan="3" style="text-align: center;">Aucun article trouvé.</td></tr>';
-                return;
-            }
+  const STATUTS_ARTICLE = ["brouillon", "programme", "publie"];
+  const LABELS_STATUT_ARTICLE = { brouillon: "Brouillon", programme: "Programmé", publie: "Publié" };
+  const LABELS_CATEGORIE_ARTICLE = {
+    etudes_bourses: "Études & Bourses", emploi_carriere: "Emploi & Carrière",
+    cv_lettre_motivation: "CV & Lettre de motivation", entretiens: "Entretiens",
+    numerique_technologie: "Numérique & Technologie", intelligence_artificielle: "Intelligence artificielle",
+    entrepreneuriat: "Entrepreneuriat", financement: "Financement",
+    opportunites_internationales: "Opportunités internationales", developpement_personnel: "Développement personnel",
+    arnaques_verification: "Arnaques & Vérification", formations_certifications: "Formations & Certifications",
+    jeunesse_rdc: "Jeunesse en RDC",
+  };
 
-            data.forEach(art => {
-                const row = `<tr>
-                    <td>${art.titre}</td>
-                    <td>${art.categorie}</td>
-                    <td>
-                        <span class="btn-del" onclick="deleteArticle(${art.id})">Supprimer</span>
-                    </td>
-                </tr>`;
-                body.innerHTML += row;
-            });
-        }
+  async function chargerArticles() {
+    const { data, error } = await rjoClient
+      .from("articles")
+      .select("id, titre, categorie, statut")
+      .order("created_at", { ascending: false });
 
-        async function deleteArticle(id) {
-            if(!confirm('Confirmer la suppression de cet article ?')) return;
-            const { error } = await supabase.from('articles').delete().eq('id', id);
-            if (error) {
-                alert('Erreur : ' + error.message);
-            } else {
-                loadArticles();
-            }
-        }
+    const corps = document.getElementById("corps-articles");
 
-        loadArticles();
-    </script>
+    if (error) {
+      corps.innerHTML = `<tr><td colspan="4">Erreur : ${error.message}</td></tr>`;
+      return;
+    }
+    if (!data || data.length === 0) {
+      corps.innerHTML = '<tr><td colspan="4" style="text-align:center;">Aucun article pour le moment.</td></tr>';
+      return;
+    }
+
+    corps.innerHTML = "";
+    data.forEach((art) => {
+      const optionsStatut = STATUTS_ARTICLE.map(
+        (s) => `<option value="${s}" ${s === art.statut ? "selected" : ""}>${LABELS_STATUT_ARTICLE[s]}</option>`
+      ).join("");
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${art.titre}</td>
+        <td>${LABELS_CATEGORIE_ARTICLE[art.categorie] || art.categorie}</td>
+        <td><select class="select-statut" data-id="${art.id}" onchange="changerStatutArticle(this)">${optionsStatut}</select></td>
+        <td><span class="lien-action suppr" onclick="supprimerArticle('${art.id}')">Supprimer</span></td>
+      `;
+      corps.appendChild(tr);
+    });
+  }
+
+  async function changerStatutArticle(selectEl) {
+    const id = selectEl.dataset.id;
+    const nouveauStatut = selectEl.value;
+    const maj = { statut: nouveauStatut };
+    if (nouveauStatut === "publie") maj.date_publication = new Date().toISOString();
+    const { error } = await rjoClient.from("articles").update(maj).eq("id", id);
+    if (error) alert("Erreur : " + error.message);
+  }
+
+  async function supprimerArticle(id) {
+    if (!confirm("Confirmer la suppression de cet article ?")) return;
+    const { error } = await rjoClient.from("articles").delete().eq("id", id);
+    if (error) {
+      alert("Erreur : " + error.message);
+    } else {
+      chargerArticles();
+    }
+  }
+
+  chargerArticles();
+</script>
 </body>
 </html>

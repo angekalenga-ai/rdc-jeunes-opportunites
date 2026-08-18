@@ -1,83 +1,110 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RJO | Gestion Opportunités</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f4f9; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background: #0756B8; color: white; }
-        .btn-del { color: #D71920; cursor: pointer; font-weight: bold; }
-        .btn-edit { color: #0756B8; cursor: pointer; margin-right: 15px; font-weight: bold; }
-        h2 { color: #102A68; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gérer les opportunités — Back-Office RJO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <h2>Gestion des opportunités</h2>
-    <table id="oppTable">
+<div class="barre-admin">
+  <div class="conteneur">
+    <span class="titre-admin">RJO · Back-Office</span>
+    <div>
+      <a href="admin_dashboard.html">← Tableau de bord</a>
+    </div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="conteneur">
+    <div class="section-titre">
+      <h2>Opportunités</h2>
+      <a class="voir-tout" href="admin_add_opp.html">+ Ajouter</a>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="table-admin" id="table-opp">
         <thead>
-            <tr>
-                <th>Titre</th>
-                <th>Catégorie</th>
-                <th>Actions</th>
-            </tr>
+          <tr>
+            <th>Titre</th>
+            <th>Catégorie</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
         </thead>
-        <tbody id="oppBody"></tbody>
-    </table>
+        <tbody id="corps-opp"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
 
-    <script>
-        // CONFIGURATION : Remplacez par vos clés Supabase réelles
-        const SUPABASE_URL = 'https://tvikvysdfbrcwmnnlgwp.supabase.co/rest/v1/';
-        const SUPABASE_KEY = 'sb_publishable_xp-8aSpz3R7vRZ0aYp5hVw_7-UHoQXy';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="supabase-client.js"></script>
+<script>
+  verifierAccesAdmin(["super_admin", "admin", "verificateur"]);
 
-        async function loadOpp() {
-            const { data, error } = await supabase.from('opportunites').select('*');
-            if (error) { 
-                alert('Erreur : ' + error.message); 
-                return; 
-            }
-            
-            const body = document.getElementById('oppBody');
-            body.innerHTML = '';
-            
-            if (data.length === 0) {
-                body.innerHTML = '<tr><td colspan="3" style="text-align: center;">Aucune opportunité trouvée.</td></tr>';
-                return;
-            }
+  const STATUTS = ["a_verifier", "en_verification", "verifiee", "expiree"];
+  const LABELS_STATUT = { a_verifier: "À vérifier", en_verification: "En vérification", verifiee: "Vérifiée", expiree: "Expirée" };
 
-            data.forEach(opp => {
-                const row = `<tr>
-                    <td>${opp.titre}</td>
-                    <td>${opp.categorie}</td>
-                    <td>
-                        <span class="btn-edit" onclick="editOpp(${opp.id})">Éditer</span>
-                        <span class="btn-del" onclick="deleteOpp(${opp.id})">Supprimer</span>
-                    </td>
-                </tr>`;
-                body.innerHTML += row;
-            });
-        }
+  async function chargerOpportunites() {
+    const { data, error } = await rjoClient
+      .from("opportunites")
+      .select("id, titre, categorie, statut")
+      .order("date_publication", { ascending: false, nullsFirst: false });
 
-        async function deleteOpp(id) {
-            if(!confirm('Confirmer la suppression de cette opportunité ?')) return;
-            const { error } = await supabase.from('opportunites').delete().eq('id', id);
-            if (error) {
-                alert('Erreur : ' + error.message);
-            } else {
-                loadOpp();
-            }
-        }
+    const corps = document.getElementById("corps-opp");
 
-        function editOpp(id) {
-            window.location.href = 'edit_opp.html?id=' + id;
-        }
+    if (error) {
+      corps.innerHTML = `<tr><td colspan="4">Erreur : ${error.message}</td></tr>`;
+      return;
+    }
+    if (!data || data.length === 0) {
+      corps.innerHTML = '<tr><td colspan="4" style="text-align:center;">Aucune opportunité pour le moment.</td></tr>';
+      return;
+    }
 
-        loadOpp();
-    </script>
+    corps.innerHTML = "";
+    data.forEach((opp) => {
+      const optionsStatut = STATUTS.map(
+        (s) => `<option value="${s}" ${s === opp.statut ? "selected" : ""}>${LABELS_STATUT[s]}</option>`
+      ).join("");
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${opp.titre}</td>
+        <td>${LABELS_CATEGORIE[opp.categorie] || opp.categorie}</td>
+        <td><select class="select-statut" data-id="${opp.id}" onchange="changerStatut(this)">${optionsStatut}</select></td>
+        <td>
+          <span class="lien-action" onclick="window.location.href='edit_opp.html?id=${opp.id}'">Éditer</span>
+          <span class="lien-action suppr" onclick="supprimerOpportunite('${opp.id}')">Supprimer</span>
+        </td>
+      `;
+      corps.appendChild(tr);
+    });
+  }
+
+  async function changerStatut(selectEl) {
+    const id = selectEl.dataset.id;
+    const nouveauStatut = selectEl.value;
+    const { error } = await rjoClient.from("opportunites").update({ statut: nouveauStatut }).eq("id", id);
+    if (error) alert("Erreur : " + error.message);
+  }
+
+  async function supprimerOpportunite(id) {
+    if (!confirm("Confirmer la suppression de cette opportunité ?")) return;
+    const { error } = await rjoClient.from("opportunites").delete().eq("id", id);
+    if (error) {
+      alert("Erreur : " + error.message);
+    } else {
+      chargerOpportunites();
+    }
+  }
+
+  chargerOpportunites();
+</script>
 </body>
 </html>

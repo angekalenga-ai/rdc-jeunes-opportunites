@@ -1,70 +1,172 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>RJO | Éditer Opportunité</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f4f9; }
-        form { background: white; padding: 20px; border-radius: 8px; }
-        input, select, textarea { width: 100%; margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        button { background: #0756B8; color: white; padding: 10px; border: none; border-radius: 4px; width: 100%; cursor: pointer; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modifier une opportunité — Back-Office RJO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <h2>Modifier l'opportunité</h2>
-    <form id="editForm">
-        <input type="text" id="titre" placeholder="Titre" required>
+<div class="barre-admin">
+  <div class="conteneur">
+    <span class="titre-admin">RJO · Back-Office</span>
+    <div>
+      <a href="admin_list_opp.html">← Liste des opportunités</a>
+    </div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="conteneur">
+    <div class="section-titre"><h2>Modifier l'opportunité</h2></div>
+    <div id="zone-message"></div>
+
+    <form class="carte-admin" id="form-edit" onsubmit="return false;">
+      <div class="champ">
+        <label>Titre</label>
+        <input type="text" id="titre" required>
+      </div>
+      <div class="champ">
+        <label>Catégorie</label>
         <select id="categorie">
-            <option value="Emploi">Emploi</option>
-            <option value="Stage">Stage</option>
-            <option value="Bourse">Bourse</option>
-            <option value="Formation">Formation</option>
+          <option value="emploi">Emploi</option>
+          <option value="stage">Stage</option>
+          <option value="bourse">Bourse</option>
+          <option value="formation">Formation</option>
+          <option value="concours">Concours</option>
+          <option value="entrepreneuriat">Entrepreneuriat</option>
+          <option value="financement">Financement</option>
+          <option value="programme_international">Programme international</option>
         </select>
-        <input type="text" id="organisme" placeholder="Organisme" required>
-        <input type="url" id="lien_officiel" placeholder="Lien officiel" required>
-        <textarea id="description" placeholder="Description"></textarea>
-        
-        <button type="submit">Enregistrer les modifications</button>
+      </div>
+      <div class="champ">
+        <label>Organisme</label>
+        <input type="text" id="organisme" required>
+      </div>
+      <div class="champ">
+        <label>Pays</label>
+        <input type="text" id="pays">
+      </div>
+      <div class="champ">
+        <label>Public cible</label>
+        <input type="text" id="public_cible">
+      </div>
+      <div class="champ">
+        <label>Date limite</label>
+        <input type="date" id="date_limite">
+      </div>
+      <div class="champ">
+        <label>Conditions</label>
+        <textarea id="conditions" rows="3"></textarea>
+      </div>
+      <div class="champ">
+        <label>Avantages</label>
+        <textarea id="avantages" rows="3"></textarea>
+      </div>
+      <div class="champ">
+        <label>Procédure officielle</label>
+        <textarea id="procedure_officielle" rows="2"></textarea>
+      </div>
+      <div class="champ">
+        <label>Lien officiel (source)</label>
+        <input type="url" id="lien_officiel" required>
+      </div>
+      <div class="champ">
+        <label>Statut de vérification</label>
+        <select id="statut">
+          <option value="a_verifier">À vérifier</option>
+          <option value="en_verification">En vérification</option>
+          <option value="verifiee">Vérifiée</option>
+          <option value="expiree">Expirée</option>
+        </select>
+      </div>
+      <div class="champ">
+        <label>Notes internes</label>
+        <textarea id="notes_internes" rows="2"></textarea>
+      </div>
+
+      <button class="bouton bouton-primaire" style="width:100%;" onclick="gererModificationOpportunite()">Enregistrer les modifications</button>
     </form>
+  </div>
+</section>
 
-    <script>
-        const SUPABASE_URL = 'https://tvikvysdfbrcwmnnlgwp.supabase.co/rest/v1/';
-        const SUPABASE_KEY = 'sb_publishable_xp-8aSpz3R7vRZ0aYp5hVw_7-UHoQXy';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="supabase-client.js"></script>
+<script>
+  verifierAccesAdmin(["super_admin", "admin", "verificateur"]);
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const oppId = urlParams.get('id');
+  const idOpportunite = new URLSearchParams(window.location.search).get("id");
 
-        // Charger les données existantes
-        async function fetchOpp() {
-            const { data, error } = await supabase.from('opportunites').select('*').eq('id', oppId).single();
-            if (error) { alert('Erreur : ' + error.message); return; }
-            
-            document.getElementById('titre').value = data.titre;
-            document.getElementById('categorie').value = data.categorie;
-            document.getElementById('organisme').value = data.organisme;
-            document.getElementById('lien_officiel').value = data.lien_officiel;
-            document.getElementById('description').value = data.description;
-        }
+  function afficherMessage(texte, type) {
+    document.getElementById("zone-message").innerHTML = `<div class="message-${type}">${texte}</div>`;
+  }
 
-        // Sauvegarder les modifications
-        document.getElementById('editForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const { error } = await supabase.from('opportunites').update({
-                titre: document.getElementById('titre').value,
-                categorie: document.getElementById('categorie').value,
-                organisme: document.getElementById('organisme').value,
-                lien_officiel: document.getElementById('lien_officiel').value,
-                description: document.getElementById('description').value
-            }).eq('id', oppId);
+  async function chargerOpportunite() {
+    if (!idOpportunite) {
+      afficherMessage("Aucune opportunité spécifiée.", "erreur");
+      return;
+    }
+    const { data, error } = await rjoClient
+      .from("opportunites")
+      .select("*, organismes(nom)")
+      .eq("id", idOpportunite)
+      .single();
 
-            if (error) alert('Erreur : ' + error.message);
-            else { alert('Modification réussie !'); window.location.href = 'admin_list_opp.html'; }
-        });
+    if (error || !data) {
+      afficherMessage("Impossible de charger cette opportunité.", "erreur");
+      return;
+    }
 
-        fetchOpp();
-    </script>
+    document.getElementById("titre").value = data.titre || "";
+    document.getElementById("categorie").value = data.categorie || "emploi";
+    document.getElementById("organisme").value = data.organismes?.nom || "";
+    document.getElementById("pays").value = data.pays || "";
+    document.getElementById("public_cible").value = data.public_cible || "";
+    document.getElementById("date_limite").value = data.date_limite || "";
+    document.getElementById("conditions").value = data.conditions || "";
+    document.getElementById("avantages").value = data.avantages || "";
+    document.getElementById("procedure_officielle").value = data.procedure_officielle || "";
+    document.getElementById("lien_officiel").value = data.lien_officiel || "";
+    document.getElementById("statut").value = data.statut || "a_verifier";
+    document.getElementById("notes_internes").value = data.notes_internes || "";
+  }
+
+  async function gererModificationOpportunite() {
+    try {
+      const organismeId = await trouverOuCreerOrganisme(document.getElementById("organisme").value.trim());
+
+      const { error } = await rjoClient
+        .from("opportunites")
+        .update({
+          titre: document.getElementById("titre").value.trim(),
+          categorie: document.getElementById("categorie").value,
+          organisme_id: organismeId,
+          pays: document.getElementById("pays").value.trim() || null,
+          public_cible: document.getElementById("public_cible").value.trim() || null,
+          date_limite: document.getElementById("date_limite").value || null,
+          conditions: document.getElementById("conditions").value.trim() || null,
+          avantages: document.getElementById("avantages").value.trim() || null,
+          procedure_officielle: document.getElementById("procedure_officielle").value.trim() || null,
+          lien_officiel: document.getElementById("lien_officiel").value.trim(),
+          statut: document.getElementById("statut").value,
+          notes_internes: document.getElementById("notes_internes").value.trim() || null,
+        })
+        .eq("id", idOpportunite);
+
+      if (error) throw error;
+
+      afficherMessage("Modifications enregistrées.", "succes");
+      setTimeout(() => (window.location.href = "admin_list_opp.html"), 900);
+    } catch (err) {
+      afficherMessage("Erreur : " + err.message, "erreur");
+    }
+  }
+
+  chargerOpportunite();
+</script>
 </body>
 </html>

@@ -202,11 +202,11 @@
     document.getElementById("profil-role").textContent = profil?.role || "utilisateur";
     document.getElementById("avatar-initiale").textContent = nomAffiche.charAt(0).toUpperCase();
 
-    // Gestion de l'affichage du bouton Back-Office pour le super admin
+    // Bouton Back-Office pour les administrateurs
     const ancienBoutonAdmin = document.getElementById("btn-admin-backoffice");
     if (ancienBoutonAdmin) ancienBoutonAdmin.remove();
 
-    if (profil && profil.role === 'super_admin') {
+    if (profil && ["super_admin", "admin", "verificateur", "editeur"].includes(profil.role)) {
       const btnAdmin = document.createElement("a");
       btnAdmin.id = "btn-admin-backoffice";
       btnAdmin.href = "admin_dashboard.html";

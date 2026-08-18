@@ -1,76 +1,115 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RJO | Ajouter un Article</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f4f9; }
-        form { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        input, select, textarea { width: 100%; margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        textarea { height: 150px; }
-        button { background: #0756B8; color: white; padding: 10px; border: none; border-radius: 4px; width: 100%; cursor: pointer; font-weight: bold; }
-        h2 { color: #102A68; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ajouter un article — Back-Office RJO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <h2>Publier un article RJO</h2>
-    <form id="articleForm">
-        <input type="text" id="titre" placeholder="Titre de l'article" required>
-        
+<div class="barre-admin">
+  <div class="conteneur">
+    <span class="titre-admin">RJO · Back-Office</span>
+    <div>
+      <a href="admin_dashboard.html">← Tableau de bord</a>
+    </div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="conteneur">
+    <div class="section-titre"><h2>Publier un article</h2></div>
+    <div id="zone-message"></div>
+
+    <form class="carte-admin" id="form-article" onsubmit="return false;">
+      <div class="champ">
+        <label>Titre</label>
+        <input type="text" id="titre" required>
+      </div>
+      <div class="champ">
+        <label>Catégorie</label>
         <select id="categorie" required>
-            <option value="">Sélectionner une catégorie</option>
-            <option value="Études & Bourses">Études & Bourses</option>
-            <option value="Emploi & Carrière">Emploi & Carrière</option>
-            <option value="CV & Lettre de motivation">CV & Lettre de motivation</option>
-            <option value="Entretiens">Entretiens</option>
-            <option value="Numérique & Technologie">Numérique & Technologie</option>
-            <option value="Intelligence artificielle">Intelligence artificielle</option>
-            <option value="Entrepreneuriat">Entrepreneuriat</option>
-            <option value="Financement">Financement</option>
-            <option value="Opportunités internationales">Opportunités internationales</option>
-            <option value="Développement personnel">Développement personnel</option>
-            <option value="Arnaques & Vérification">Arnaques & Vérification</option>
-            <option value="Formations & Certifications">Formations & Certifications</option>
-            <option value="Jeunesse en RDC">Jeunesse en RDC</option>
+          <option value="etudes_bourses">Études & Bourses</option>
+          <option value="emploi_carriere">Emploi & Carrière</option>
+          <option value="cv_lettre_motivation">CV & Lettre de motivation</option>
+          <option value="entretiens">Entretiens</option>
+          <option value="numerique_technologie">Numérique & Technologie</option>
+          <option value="intelligence_artificielle">Intelligence artificielle</option>
+          <option value="entrepreneuriat">Entrepreneuriat</option>
+          <option value="financement">Financement</option>
+          <option value="opportunites_internationales">Opportunités internationales</option>
+          <option value="developpement_personnel">Développement personnel</option>
+          <option value="arnaques_verification">Arnaques & Vérification</option>
+          <option value="formations_certifications">Formations & Certifications</option>
+          <option value="jeunesse_rdc">Jeunesse en RDC</option>
         </select>
+      </div>
+      <div class="champ">
+        <label>Résumé court (accroche)</label>
+        <input type="text" id="resume">
+      </div>
+      <div class="champ">
+        <label>Contenu complet</label>
+        <textarea id="contenu" rows="8" required></textarea>
+      </div>
+      <div class="champ">
+        <label>Image (URL)</label>
+        <input type="url" id="image_url">
+      </div>
+      <div class="champ">
+        <label>Statut</label>
+        <select id="statut">
+          <option value="brouillon">Brouillon</option>
+          <option value="publie">Publié</option>
+        </select>
+      </div>
 
-        <input type="text" id="resume" placeholder="Résumé court (accroche)">
-        
-        <textarea id="contenu" placeholder="Contenu complet de l'article..." required></textarea>
-        
-        <input type="url" id="image_url" placeholder="Lien de l'image (URL)">
-
-        <button type="submit">Publier l'article</button>
+      <button class="bouton bouton-primaire" style="width:100%;" onclick="gererAjoutArticle()">Enregistrer l'article</button>
     </form>
+  </div>
+</section>
 
-    <script>
-        const SUPABASE_URL = 'https://tvikvysdfbrcwmnnlgwp.supabase.co/rest/v1/';
-        const SUPABASE_KEY = 'sb_publishable_xp-8aSpz3R7vRZ0aYp5hVw_7-UHoQXy';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="supabase-client.js"></script>
+<script>
+  verifierAccesAdmin(["super_admin", "admin", "editeur"]);
 
-        document.getElementById('articleForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const articleData = {
-                titre: document.getElementById('titre').value,
-                categorie: document.getElementById('categorie').value,
-                resume: document.getElementById('resume').value,
-                contenu: document.getElementById('contenu').value,
-                image_url: document.getElementById('image_url').value
-            };
+  function afficherMessage(texte, type) {
+    document.getElementById("zone-message").innerHTML = `<div class="message-${type}">${texte}</div>`;
+  }
 
-            const { error } = await supabase.from('articles').insert([articleData]);
-            
-            if (error) {
-                alert('Erreur : ' + error.message);
-            } else {
-                alert('Article publié avec succès dans la base !');
-                document.getElementById('articleForm').reset();
-            }
-        });
-    </script>
+  async function gererAjoutArticle() {
+    const titre = document.getElementById("titre").value.trim();
+    const contenu = document.getElementById("contenu").value.trim();
+
+    if (!titre || !contenu) {
+      afficherMessage("Titre et contenu sont obligatoires.", "erreur");
+      return;
+    }
+
+    const statut = document.getElementById("statut").value;
+
+    const { error } = await rjoClient.from("articles").insert({
+      titre,
+      categorie: document.getElementById("categorie").value,
+      resume: document.getElementById("resume").value.trim() || null,
+      contenu,
+      image_url: document.getElementById("image_url").value.trim() || null,
+      statut,
+      date_publication: statut === "publie" ? new Date().toISOString() : null,
+    });
+
+    if (error) {
+      afficherMessage("Erreur : " + error.message, "erreur");
+    } else {
+      afficherMessage("Article enregistré avec succès.", "succes");
+      document.getElementById("form-article").reset();
+    }
+  }
+</script>
 </body>
 </html>

@@ -501,6 +501,90 @@ img { max-width: 100%; display: block; }
   margin: 0 auto 14px;
 }
 
+/* -------- BACK-OFFICE -------- */
+.barre-admin {
+  background: var(--bleu-nuit);
+  color: var(--blanc);
+  padding: 14px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.barre-admin .conteneur { display: flex; align-items: center; justify-content: space-between; }
+.barre-admin a, .barre-admin button {
+  color: var(--blanc);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  background: none;
+  border: 1px solid rgba(255,255,255,0.3);
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.titre-admin { font-family: var(--font-display); font-weight: 700; }
+
+.grille-admin {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  max-width: 620px;
+  margin: 0 auto;
+}
+.carte-admin-lien {
+  background: var(--blanc);
+  border: 1px solid var(--gris-bordure);
+  border-radius: var(--rayon);
+  padding: 26px 14px;
+  text-align: center;
+  font-weight: 600;
+  color: var(--bleu-rdc);
+  text-decoration: none;
+  box-shadow: var(--ombre);
+}
+.carte-admin-lien:hover { text-decoration: none; background: var(--gris-clair); }
+
+.carte-admin {
+  max-width: 620px;
+  margin: 0 auto;
+  border: 1px solid var(--gris-bordure);
+  border-radius: var(--rayon);
+  padding: 28px;
+  box-shadow: var(--ombre);
+}
+
+.table-admin { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.table-admin th {
+  background: var(--bleu-rdc);
+  color: var(--blanc);
+  padding: 12px;
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.table-admin td { padding: 12px; border-bottom: 1px solid var(--gris-bordure); font-size: 0.88rem; vertical-align: middle; }
+.lien-action { cursor: pointer; font-weight: 600; font-size: 0.85rem; margin-right: 14px; color: var(--bleu-rdc); }
+.lien-action.suppr { color: var(--rouge); }
+
+.select-statut {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--gris-bordure);
+  background: var(--blanc);
+}
+
+.badge-statut { font-family: var(--font-mono); font-size: 0.68rem; padding: 4px 9px; border-radius: 999px; text-transform: uppercase; display: inline-block; }
+.badge-a_verifier { background: #EEEEEE; color: #666666; }
+.badge-en_verification { background: #FFF3CD; color: #946200; }
+.badge-verifiee { background: #E3F5E1; color: #1B7A3D; }
+.badge-expiree { background: #FBE1E1; color: var(--rouge); }
+.badge-brouillon { background: #EEEEEE; color: #666666; }
+.badge-programme { background: #FFF3CD; color: #946200; }
+.badge-publie { background: #E3F5E1; color: #1B7A3D; }
+
 /* -------- FOOTER -------- */
 .pied {
   background: var(--bleu-nuit);
