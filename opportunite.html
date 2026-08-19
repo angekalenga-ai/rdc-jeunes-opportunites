@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Opportunité — RDC Jeunes Opportunités</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="supabase-client.js"></script>
+</head>
+
+<body>
+
+<header class="site-header">
+    <div class="container">
+
+        <a href="index.html" class="brand">
+            <img src="images/logo-rjo.png" alt="Logo RJO">
+            <span>RDC Jeunes Opportunités</span>
+        </a>
+
+        <button
+            class="nav-toggle"
+            aria-label="Ouvrir le menu"
+            aria-expanded="false">
+            ☰
+        </button>
+
+        <nav class="main-nav">
+            <a href="index.html">Accueil</a>
+            <a href="opportunites.html" class="active">Opportunités</a>
+            <a href="articles.html">Articles</a>
+            <a href="apropos.html">À propos</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+
+    </div>
+</header>
+
+
+<main class="container block">
+
+    <div class="section-head">
+        <h1>Détail de l'opportunité</h1>
+        <a href="opportunites.html" class="see-all">
+            ← Toutes les opportunités
+        </a>
+    </div>
+
+    <div id="detail-opportunite">
+
+        <div style="text-align:center; padding:40px; color:#6b7280;">
+            Chargement...
+        </div>
+
+    </div>
+
+</main>
+
+
+<footer class="site-footer">
+
+    <div class="container">
+
+        <div class="footer-row">
+
+            <div>
+                <strong>RDC Jeunes Opportunités</strong>
+
+                <p style="font-size:0.85rem; opacity:0.8; margin-top:5px;">
+                    L'emploi, les formations et les bourses pour la jeunesse congolaise.
+                </p>
+            </div>
+
+            <div class="footer-links">
+                <a href="apropos.html">À propos</a>
+                <a href="contact.html">Contact</a>
+                <a href="articles.html">Articles</a>
+            </div>
+
+        </div>
+
+    </div>
+
+</footer>
+
+
+<script>
+
+window.addEventListener("DOMContentLoaded", async () => {
+
+    const container =
+        document.getElementById("detail-opportunite");
+
+    const id =
+        new URLSearchParams(window.location.search).get("id");
+
+    if (!id) {
+
+        container.innerHTML = `
+            <div style="text-align:center; padding:40px;">
+                <p>Opportunité introuvable.</p>
+                <a href="opportunites.html" class="btn">
+                    Voir les opportunités
+                </a>
+            </div>
+        `;
+
+        return;
+    }
+
+    try {
+
+        const { data, error } = await rjoClient
+            .from("opportunites")
+            .select(`
+                id,
+                titre,
+                categorie,
+                pays,
+                public_cible,
+                date_limite,
+                conditions,
+                avantages,
+                procedure_officielle,
+                lien_officiel,
+                statut,
+                image_url,
+                organismes(nom)
+            `)
+            .eq("id", id)
+            .eq("statut", "verifiee")
+            .single();
+
+        if (error || !data) {
+
+            container.innerHTML = `
+                <div style="
+                    text-align:center;
+                    padding:40px;
+                ">
+                    <p>
+                        Cette opportunité n'est pas disponible
+                        ou n'a pas encore été vérifiée.
+                    </p>
+
+                    <a href="opportunites.html" class="btn">
+                        Retour aux opportunités
+                    </a>
+                </div>
+            `;
+
+            return;
+        }
+
+        const organisme =
+            Array.isArray(data.organismes)
+                ? data.organismes[0]
+                : data.organismes;
+
+        const nomOrganisme =
+            organisme?.nom || "Organisme non précisé";
+
+        const categorie =
+            LABELS_CATEGORIE[data.categorie]
+            || data.categorie
+            || "Opportunité";
+
+        document.title =
+            data.titre + " — RDC Jeunes Opportunités";
+
+        const image =
+            data.image_url
+                ? `
+                    <img
+                        src="${data.image_url}"
+                        alt=""
+                        style="
+                            width:100%;
+                            max-height:320px;
+                            object-fit:cover;
+                            border-radius:12px;
+                            margin-bottom:20px;
+                        "
+                    >
+                  `
+                : "";
+
+        container.innerHTML = `
+
+            <article class="carte-admin">
+
+                ${image}
+
+                <div style="margin-bottom:15px;">
+
+                    <span class="tampon-verifie">
+                        <span>RJO<br>Vérifié</span>
+                    </span>
+
+                    <span class="badge-categorie">
+                        ${categorie}
+                    </span>
+
+                </div>
+
+                <h2>${data.titre}</h2>
+
+                <p>
+                    <strong>Organisme :</strong>
+                    ${nomOrganisme}
+                </p>
+
+                <p>
+                    <strong>Pays :</strong>
+                    ${data.pays || "Non précisé"}
+                </p>
+
+                <p>
+                    <strong>Date limite :</strong>
+                    ${formaterDate(data.date_limite)}
+                </p>
+
+                ${
+                    data.public_cible
+                        ? `
+                            <h3>Public cible</h3>
+                            <p>${data.public_cible}</p>
+                          `
+                        : ""
+                }
+
+                ${
+                    data.conditions
+                        ? `
+                            <h3>Conditions</h3>
+                            <p>${data.conditions}</p>
+                          `
+                        : ""
+                }
+
+                ${
+                    data.avantages
+                        ? `
+                            <h3>Avantages</h3>
+                            <p>${data.avantages}</p>
+                          `
+                        : ""
+                }
+
+                ${
+                    data.procedure_officielle
+                        ? `
+                            <h3>Procédure officielle</h3>
+                            <p>${data.procedure_officielle}</p>
+                          `
+                        : ""
+                }
+
+                <div style="margin-top:25px;">
+
+                    <a
+                        href="${data.lien_officiel}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="btn">
+                        Voir l'offre officielle →
+                    </a>
+
+                </div>
+
+            </article>
+
+        `;
+
+    } catch (error) {
+
+        console.error(
+            "Erreur détail opportunité :",
+            error
+        );
+
+        container.innerHTML = `
+            <div style="
+                text-align:center;
+                padding:40px;
+                color:#dc2626;
+            ">
+                Impossible de charger cette opportunité.
+            </div>
+        `;
+    }
+
+});
+
+</script>
+
+<script src="app.js"></script>
+
+</body>
+</html>
