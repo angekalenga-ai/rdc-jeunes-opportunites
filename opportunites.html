@@ -4,72 +4,159 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RDC Jeunes Opportunités - Opportunités en cours</title>
-    <!-- SDK Supabase -->
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="supabase-client.js"></script>
 </head>
-<body style="font-family: sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px;">
 
-    <div style="max-width: 800px; margin: 0 auto;">
-        <h1 style="color: #1e3a8a; font-size: 24px; margin-bottom: 20px;">Opportunités en cours</h1>
+<body>
 
-        <!-- Conteneur des données -->
-        <div id="liste-opportunites">
-            <div style="text-align: center; color: #6b7280; padding: 30px;">Chargement des opportunités...</div>
+    <!-- Header -->
+    <header class="site-header">
+        <div class="container">
+
+            <a href="index.html" class="brand">
+                <img src="images/logo-rjo.png" alt="Logo RJO">
+                <span>RDC Jeunes Opportunités</span>
+            </a>
+
+            <button
+                class="nav-toggle"
+                aria-label="Ouvrir le menu"
+                aria-expanded="false">
+                ☰
+            </button>
+
+            <nav class="main-nav">
+                <a href="index.html">Accueil</a>
+                <a href="opportunites.html" class="active">Opportunités</a>
+                <a href="articles.html">Articles</a>
+                <a href="apropos.html">À propos</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+
         </div>
-    </div>
+    </header>
 
+
+    <!-- Contenu -->
+    <main class="container block">
+
+        <div class="section-head">
+            <h1>Opportunités en cours</h1>
+            <a href="index.html" class="see-all">← Accueil</a>
+        </div>
+
+        <div id="liste-opportunites">
+            <div style="text-align:center; color:#6b7280; padding:30px;">
+                Chargement des opportunités...
+            </div>
+        </div>
+
+    </main>
+
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+
+            <div class="footer-row">
+
+                <div>
+                    <strong>RDC Jeunes Opportunités</strong>
+
+                    <p style="font-size:0.85rem; opacity:0.8; margin-top:5px;">
+                        L'emploi, les formations et les bourses pour la jeunesse congolaise.
+                    </p>
+                </div>
+
+                <div class="footer-links">
+                    <a href="apropos.html">À propos</a>
+                    <a href="contact.html">Contact</a>
+                    <a href="articles.html">Articles</a>
+                </div>
+
+            </div>
+
+        </div>
+    </footer>
+
+
+    <!-- Chargement des opportunités -->
     <script>
-        // Attendre que la page et le SDK soient prêts
         window.addEventListener('DOMContentLoaded', async () => {
-            const container = document.getElementById('liste-opportunites');
-            
+
+            const container =
+                document.getElementById('liste-opportunites');
+
+            const params =
+                new URLSearchParams(window.location.search);
+
+            const recherche =
+                params.get('q') || '';
+
+            const categorie =
+                params.get('cat') || '';
+
             try {
-                // Vérifier si le SDK Supabase s'est bien chargé
-                if (typeof window.supabase === 'undefined') {
-                    throw new Error("Le script Supabase n'a pas pu se charger depuis Internet.");
-                }
 
-                // ⚠️ METS TES VRAIES CLÉS ICI ⚠️
-                const SUPABASE_URL = 'https://tvikvysdfbrcwmnnlgwp.supabase.co';
-                const SUPABASE_ANON_KEY = 'sb_publishable_xp-8aSpz3R7vRZ0aYp5hVw_7-UHoQXy';
-                
-                const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                const opportunites =
+                    await recupererOpportunitesVerifiees({
+                        recherche,
+                        categorie
+                    });
 
-                // Récupération des données
-                const { data, error } = await client
-                    .from('opportunites')
-                    .select('*');
+                if (!opportunites.length) {
 
-                if (error) {
-                    throw error;
-                }
+                    container.innerHTML = `
+                        <p style="
+                            text-align:center;
+                            color:#6b7280;
+                            padding:30px;
+                        ">
+                            Aucune opportunité vérifiée disponible
+                            pour le moment.
+                        </p>
+                    `;
 
-                if (!data || data.length === 0) {
-                    container.innerHTML = '<p style="text-align:center; color:#6b7280; padding:20px;">Aucune opportunité disponible pour le moment.</p>';
                     return;
                 }
 
-                container.innerHTML = '';
-                
-                data.forEach(opp => {
-    const card = document.createElement('div');
-    card.style.cssText = "background: #ffffff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; border-left: 4px solid #2563eb;";
-    
-    card.innerHTML = `
-        <span style="background: #eff6ff; color: #2563eb; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; text-transform: uppercase;">${opp.categorie || 'Opportunité'}</span>
-        <h3 style="margin: 12px 0 8px 0; color: #1e293b; font-size: 18px;">${opp.titre}</h3>
-        <p style="color: #64748b; font-size: 14px; margin-bottom: 16px;"><strong>Public cible :</strong> ${opp.public_cible || 'Tous publics'}</p>
-        <a href="${opp.lien_officiel || '#'}" target="_blank" style="display: inline-block; background: #2563eb; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 550;">Voir l'opportunité ↗</a>
-    `;
-    container.appendChild(card);
-});
-
+                container.innerHTML =
+                    opportunites
+                        .map(carteOpportuniteHTML)
+                        .join('');
 
             } catch (err) {
-                // Affiche l'erreur en rouge vif sur le site si quelque chose bloque
-                container.innerHTML = `<div style="background: #fee2e2; color: #dc2626; padding: 15px; border-radius: 8px; font-size: 14px;"><strong>Erreur :</strong> ${err.message}</div>`;
+
+                console.error(
+                    'Erreur chargement opportunités :',
+                    err
+                );
+
+                container.innerHTML = `
+                    <div style="
+                        background:#fee2e2;
+                        color:#dc2626;
+                        padding:15px;
+                        border-radius:8px;
+                    ">
+                        Impossible de charger les opportunités
+                        pour le moment.
+                    </div>
+                `;
             }
+
         });
     </script>
+
+
+    <!-- JavaScript général -->
+    <script src="app.js"></script>
+
 </body>
 </html>
