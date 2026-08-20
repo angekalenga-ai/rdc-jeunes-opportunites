@@ -113,10 +113,26 @@ async function recupererProfil(userId) {
     .select("nom_complet, role")
     .eq("id", userId)
     .single();
+
   if (error) {
-    console.error("Erreur récupération profil :", error);
-    return null;
+    console.error("===== ERREUR PROFIL SUPABASE =====");
+    console.error("Code :", error.code);
+    console.error("Message :", error.message);
+    console.error("Details :", error.details);
+    console.error("Hint :", error.hint);
+    console.error("User ID :", userId);
+    console.error("===================================");
+
+    throw new Error(
+      "Erreur profil Supabase [" +
+      (error.code || "UNKNOWN") +
+      "] : " +
+      (error.message || "Erreur inconnue") +
+      (error.details ? " — " + error.details : "")
+    );
   }
+
+  console.log("Profil Supabase récupéré :", data);
   return data;
 }
 
