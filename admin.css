@@ -114,3 +114,95 @@
         padding: 20px;
     }
 }
+/* =========================================================
+   RJO — ÉDITEUR BACK-OFFICE
+   ========================================================= */
+
+.barre-admin {
+    background: var(--navy-900);
+    color: var(--white);
+    padding: 0;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.18);
+}
+
+.barre-admin .conteneur {
+    max-width: 1100px;
+    min-height: 68px;
+    margin: 0 auto;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.titre-admin {
+    color: var(--white);
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.barre-admin a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 9px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--white);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.barre-admin a:hover {
+    background: var(--gold-500);
+    border-color: var(--gold-500);
+    color: var(--navy-900);
+}
+
+/* Boutons généraux du back-office */
+.carte-admin {
+    background: var(--white);
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 28px;
+    box-shadow: 0 8px 25px rgba(15, 23, 42, 0.07);
+}
+
+.carte-admin .champ {
+    margin-bottom: 18px;
+}
+
+/* Message de statut */
+#zone-message {
+    margin-bottom: 18px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+
+    .barre-admin .conteneur {
+        min-height: auto;
+        padding: 14px 16px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .barre-admin a {
+        width: 100%;
+    }
+
+    .titre-admin {
+        font-size: 1rem;
+    }
+
+    .carte-admin {
+        padding: 20px 16px;
+        border-radius: 12px;
+    }
+}
