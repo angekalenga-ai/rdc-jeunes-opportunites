@@ -49,8 +49,16 @@
   const email = document.getElementById("login-email").value.trim();
   const motDePasse = document.getElementById("login-motdepasse").value;
 
+  const etape = (message) => {
+    console.log("[LOGIN]", message);
+    afficherMessage(message, "info");
+  };
+
   if (!email || !motDePasse) {
-    afficherMessage("Veuillez renseigner votre email et votre mot de passe.", "erreur");
+    afficherMessage(
+      "Veuillez renseigner votre email et votre mot de passe.",
+      "erreur"
+    );
     return;
   }
 
@@ -58,53 +66,76 @@
   bouton.textContent = "Connexion en cours...";
 
   try {
+    etape("1/5 — Connexion à Supabase...");
+
     const resultat = await connecter(email, motDePasse);
 
     if (!resultat) {
-      throw new Error("Réponse inattendue du service d'authentification.");
+      throw new Error("Aucune réponse du service d'authentification.");
     }
 
-    const { error } = resultat;
-
-    if (error) {
-      afficherMessage(
-        traduireErreurAuth(error.message || "Erreur d'authentification."),
-        "erreur"
+    if (resultat.error) {
+      throw new Error(
+        traduireErreurAuth(resultat.error.message || "Erreur Auth Supabase.")
       );
-      return;
     }
+
+    etape("2/5 — Authentification réussie.");
 
     const session = await recupererSessionActuelle();
 
     if (!session || !session.user) {
-      throw new Error(
-        "Connexion réussie, mais aucune session utilisateur n'a été trouvée."
-      );
+      throw new Error("Session Supabase introuvable après connexion.");
     }
+
+    etape("3/5 — Session récupérée.");
+
+    console.log("[LOGIN] User ID :", session.user.id);
+    console.log("[LOGIN] Email :", session.user.email);
 
     const profil = await recupererProfil(session.user.id);
 
-    if (!profil || !ROLES_ADMIN.includes(profil.role)) {
-      afficherMessage(
-        "Accès refusé : droits administrateur requis.",
-        "erreur"
+    if (!profil) {
+      throw new Error(
+        "Le profil utilisateur est introuvable ou inaccessible."
       );
-      await deconnecter();
-      return;
     }
+
+    etape("4/5 — Profil récupéré.");
+
+    console.log("[LOGIN] Profil :", profil);
+    console.log("[LOGIN] Rôle :", profil.role);
+
+    const rolesAutorises = [
+      "super_admin",
+      "admin",
+      "verificateur",
+      "editeur"
+    ];
+
+    if (!rolesAutorises.includes(profil.role)) {
+      await deconnecter();
+      throw new Error(
+        "Accès refusé. Rôle détecté : " + profil.role
+      );
+    }
+
+    etape("5/5 — Rôle administrateur validé.");
 
     afficherMessage(
       "Connexion réussie. Ouverture du tableau de bord...",
       "succes"
     );
 
-    window.location.href = "admin_dashboard.html";
+    setTimeout(() => {
+      window.location.href = "admin_dashboard.html";
+    }, 500);
 
   } catch (erreur) {
-    console.error("Erreur connexion administrateur :", erreur);
+    console.error("[LOGIN] ERREUR :", erreur);
 
     afficherMessage(
-      "Erreur lors de la connexion : " +
+      "Échec à l'étape actuelle : " +
       (erreur.message || "Erreur inconnue."),
       "erreur"
     );
