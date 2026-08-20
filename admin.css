@@ -206,3 +206,82 @@
         border-radius: 12px;
     }
 }
+/* =========================================================
+   RJO — TABLEAU DE BORD BACK-OFFICE
+   ========================================================= */
+
+.section-titre {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.section-titre h2 {
+    margin: 0;
+    color: var(--navy-900);
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+}
+
+/* Grille du tableau de bord */
+.grille-admin {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+/* Cartes / boutons */
+.carte-admin-lien {
+    display: flex;
+    align-items: center;
+    min-height: 110px;
+    padding: 24px;
+    background: var(--white);
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    color: var(--navy-900);
+    text-decoration: none;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1rem;
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.07);
+    transition: transform .2s ease, box-shadow .2s ease,
+                border-color .2s ease;
+}
+
+.carte-admin-lien:hover {
+    transform: translateY(-3px);
+    border-color: var(--gold-500);
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
+}
+
+/* Petit effet visuel */
+.carte-admin-lien::after {
+    content: "→";
+    margin-left: auto;
+    color: var(--gold-600);
+    font-size: 1.3rem;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .grille-admin {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .section-titre {
+        align-items: flex-start;
+    }
+
+    .section-titre h2 {
+        font-size: 1.5rem;
+    }
+
+    .carte-admin-lien {
+        min-height: 90px;
+        padding: 20px;
+    }
+}
