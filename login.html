@@ -15,7 +15,7 @@
     <img src="images/logo-rjo.png" alt="RJO" style="height:56px;">
   </div>
 
-  <form class="carte-auth" id="form-login" onsubmit="return false;">
+  <form class="carte-auth" id="form-login" onsubmit="gererLoginAdmin(event)">
     <h2 style="text-align:center; font-size:1.2rem;">Administration RJO</h2>
     <div id="zone-message"></div>
     <div class="champ">
@@ -26,7 +26,7 @@
       <label>Mot de passe</label>
       <input type="password" id="login-motdepasse" required>
     </div>
-    <button class="bouton bouton-primaire" style="width:100%;" onclick="gererLoginAdmin()">Se connecter</button>
+    <button type="submit" id="bouton-login" class="bouton bouton-primaire" style="width:100%;">Se connecter</button>
   </form>
 
   <p style="text-align:center; margin-top:16px;"><a href="index.html" style="color:var(--gris-texte-clair); font-size:0.85rem;">← Retour au site</a></p>
@@ -42,27 +42,78 @@
     document.getElementById("zone-message").innerHTML = `<div class="message-${type}">${texte}</div>`;
   }
 
-  async function gererLoginAdmin() {
-    const email = document.getElementById("login-email").value.trim();
-    const motDePasse = document.getElementById("login-motdepasse").value;
+  async function gererLoginAdmin(event) {
+  if (event) event.preventDefault();
 
-    const { error } = await connecter(email, motDePasse);
+  const bouton = document.getElementById("bouton-login");
+  const email = document.getElementById("login-email").value.trim();
+  const motDePasse = document.getElementById("login-motdepasse").value;
+
+  if (!email || !motDePasse) {
+    afficherMessage("Veuillez renseigner votre email et votre mot de passe.", "erreur");
+    return;
+  }
+
+  bouton.disabled = true;
+  bouton.textContent = "Connexion en cours...";
+
+  try {
+    const resultat = await connecter(email, motDePasse);
+
+    if (!resultat) {
+      throw new Error("Réponse inattendue du service d'authentification.");
+    }
+
+    const { error } = resultat;
+
     if (error) {
-      afficherMessage(traduireErreurAuth(error.message), "erreur");
+      afficherMessage(
+        traduireErreurAuth(error.message || "Erreur d'authentification."),
+        "erreur"
+      );
       return;
     }
 
     const session = await recupererSessionActuelle();
+
+    if (!session || !session.user) {
+      throw new Error(
+        "Connexion réussie, mais aucune session utilisateur n'a été trouvée."
+      );
+    }
+
     const profil = await recupererProfil(session.user.id);
 
     if (!profil || !ROLES_ADMIN.includes(profil.role)) {
-      afficherMessage("Accès refusé : droits administrateur requis.", "erreur");
+      afficherMessage(
+        "Accès refusé : droits administrateur requis.",
+        "erreur"
+      );
       await deconnecter();
       return;
     }
 
+    afficherMessage(
+      "Connexion réussie. Ouverture du tableau de bord...",
+      "succes"
+    );
+
     window.location.href = "admin_dashboard.html";
+
+  } catch (erreur) {
+    console.error("Erreur connexion administrateur :", erreur);
+
+    afficherMessage(
+      "Erreur lors de la connexion : " +
+      (erreur.message || "Erreur inconnue."),
+      "erreur"
+    );
+
+  } finally {
+    bouton.disabled = false;
+    bouton.textContent = "Se connecter";
   }
+}
 </script>
 </body>
 </html>
