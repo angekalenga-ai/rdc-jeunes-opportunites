@@ -285,3 +285,52 @@
         padding: 20px;
     }
 }
+/* =========================================================
+   BOUTON AJOUTER — LISTES BACK-OFFICE
+   ========================================================= */
+
+.section-titre .voir-tout {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 16px;
+    background: var(--gold-500);
+    color: var(--navy-900);
+    border: 1px solid var(--gold-500);
+    border-radius: 8px;
+    text-decoration: none;
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    box-shadow: 0 3px 8px rgba(15, 23, 42, 0.12);
+    transition: transform 0.2s ease,
+                background 0.2s ease,
+                box-shadow 0.2s ease;
+}
+
+.section-titre .voir-tout:hover {
+    background: var(--gold-600);
+    border-color: var(--gold-600);
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(15, 23, 42, 0.18);
+}
+
+.section-titre .voir-tout:active {
+    transform: translateY(0);
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .section-titre {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .section-titre .voir-tout {
+        width: 100%;
+    }
+}
