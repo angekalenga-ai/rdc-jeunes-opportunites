@@ -1,0 +1,116 @@
+/* =========================================================
+   RJO — BACK-OFFICE ADMINISTRATEUR
+   ========================================================= */
+
+.barre-admin {
+    background: var(--navy-900);
+    color: var(--white);
+    padding: 16px 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,.15);
+}
+
+.barre-admin .conteneur {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.titre-admin {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--white);
+}
+
+.barre-admin a {
+    color: var(--slate-100);
+    text-decoration: none;
+    margin-right: 15px;
+    font-weight: 500;
+}
+
+.barre-admin a:hover {
+    color: var(--gold-500);
+}
+
+.barre-admin button {
+    border: 1px solid rgba(255,255,255,.25);
+    background: transparent;
+    color: var(--white);
+    padding: 8px 14px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-weight: 500;
+}
+
+.barre-admin button:hover {
+    background: var(--gold-500);
+    color: var(--navy-900);
+}
+
+.section-titre {
+    margin-bottom: 25px;
+}
+
+.section-titre h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    color: var(--navy-900);
+    font-size: 1.8rem;
+}
+
+.grille-admin {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 20px;
+}
+
+.carte-admin-lien {
+    display: flex;
+    align-items: center;
+    min-height: 120px;
+    padding: 25px;
+    background: var(--white);
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    color: var(--navy-900);
+    text-decoration: none;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.05rem;
+    box-shadow: 0 4px 12px rgba(15,23,42,.06);
+    transition: transform .2s ease, box-shadow .2s ease,
+                border-color .2s ease;
+}
+
+.carte-admin-lien:hover {
+    transform: translateY(-3px);
+    border-color: var(--gold-500);
+    box-shadow: 0 8px 20px rgba(15,23,42,.12);
+}
+
+@media (max-width:700px) {
+    .barre-admin .conteneur {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .grille-admin {
+        grid-template-columns: 1fr;
+    }
+
+    .barre-admin a {
+        margin-right: 10px;
+    }
+
+    .section-titre h2 {
+        font-size: 1.5rem;
+    }
+
+    .carte-admin-lien {
+        min-height: 90px;
+        padding: 20px;
+    }
+}
