@@ -851,3 +851,133 @@ a:focus-visible, button:focus-visible {
         width: 100%;
     }
 }
+/* =========================================================
+   CARTES OPPORTUNITÉS — RDC JEUNES OPPORTUNITÉS
+   ========================================================= */
+
+#liste-opportunites {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.carte-opportunite {
+    display: flex;
+    flex-direction: column;
+    background: var(--white);
+    border-radius: 16px;
+    overflow: hidden;
+    text-decoration: none;
+    color: var(--navy-900);
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.carte-opportunite:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.14);
+}
+
+.carte-opportunite-image {
+    width: 100%;
+    height: 190px;
+    background: var(--slate-100);
+    overflow: hidden;
+}
+
+.carte-opportunite-image img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+}
+
+.carte-opportunite-contenu {
+    padding: 18px;
+}
+
+.carte-opportunite-badges {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.tampon-verifie {
+    display: inline-flex;
+    align-items: center;
+    background: #dcfce7;
+    color: #166534;
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.badge-categorie {
+    display: inline-flex;
+    align-items: center;
+    background: #fff7ed;
+    color: var(--gold-600);
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.carte-opportunite h3 {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    line-height: 1.35;
+    margin-bottom: 10px;
+    color: var(--navy-900);
+}
+
+.carte-opportunite .organisme {
+    color: var(--slate-600);
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+}
+
+.opp-infos {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    color: var(--slate-600);
+    font-size: 0.85rem;
+    margin-bottom: 15px;
+}
+
+.opp-bouton {
+    display: inline-block;
+    color: var(--gold-600);
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 900px) {
+    #liste-opportunites {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    #liste-opportunites {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .carte-opportunite-image {
+        height: 200px;
+    }
+
+    .carte-opportunite-contenu {
+        padding: 16px;
+    }
+
+    .carte-opportunite h3 {
+        font-size: 1.05rem;
+    }
+}

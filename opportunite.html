@@ -133,7 +133,7 @@ window.addEventListener("DOMContentLoaded", async () => {
                 organismes(nom)
             `)
             .eq("id", id)
-            .eq("statut", "verifiee")
+            // TEST : ne pas filtrer par statut
             .single();
 
         if (error || !data) {

@@ -53,6 +53,13 @@
         <input type="text" id="pays" value="RDC">
       </div>
       <div class="champ">
+  <label>Image de l'opportunité</label>
+  <input type="file" id="image" accept="image/jpeg,image/png,image/webp" required>
+  <small>JPG, PNG ou WebP · 5 Mo maximum</small>
+  <div id="apercu-image" style="margin-top:10px;"></div>
+  </div>
+
+       <div class="champ">
         <label>Public cible</label>
         <input type="text" id="public_cible" placeholder="Ex : Étudiants niveau Bac+3">
       </div>
@@ -105,24 +112,69 @@
     document.getElementById("zone-message").innerHTML = `<div class="message-${type}">${texte}</div>`;
   }
 
-  async function gererAjoutOpportunite() {
-    const titre = document.getElementById("titre").value.trim();
-    const organismeNom = document.getElementById("organisme").value.trim();
-    const lienOfficiel = document.getElementById("lien_officiel").value.trim();
+async function televerserImageOpportunite(fichier) {
+  const extension = fichier.name.split(".").pop().toLowerCase();
 
-    if (!titre || !organismeNom || !lienOfficiel) {
-      afficherMessage("Titre, organisme et lien officiel sont obligatoires.", "erreur");
-      return;
-    }
+  const nomSecurise = fichier.name
+    .replace(/[^a-zA-Z0-9._-]/g, "-")
+    .replace(/-+/g, "-");
 
-    try {
-      const organismeId = await trouverOuCreerOrganisme(organismeNom);
+  const chemin = `${crypto.randomUUID()}-${nomSecurise || `image.${extension}`}`;
 
-      const { error } = await rjoClient.from("opportunites").insert({
+  const { error: uploadError } = await rjoClient.storage
+    .from("opportunites")
+    .upload(chemin, fichier, {
+      cacheControl: "3600",
+      upsert: false,
+      contentType: fichier.type
+    });
+
+  if (uploadError) throw uploadError;
+
+  const { data } = rjoClient.storage
+    .from("opportunites")
+    .getPublicUrl(chemin);
+
+  if (!data || !data.publicUrl) {
+    throw new Error("Impossible de récupérer l'URL publique de l'image.");
+  }
+
+  return data.publicUrl;
+}
+async function gererAjoutOpportunite() {
+  const titre = document.getElementById("titre").value.trim();
+  const organismeNom = document.getElementById("organisme").value.trim();
+  const lienOfficiel = document.getElementById("lien_officiel").value.trim();
+  const imageFile = document.getElementById("image").files[0];
+
+  if (!titre || !organismeNom || !lienOfficiel || !imageFile) {
+    afficherMessage(
+      "Titre, organisme, lien officiel et image sont obligatoires.",
+      "erreur"
+    );
+    return;
+  }
+
+  if (imageFile.size > 5 * 1024 * 1024) {
+    afficherMessage(
+      "L'image ne doit pas dépasser 5 Mo.",
+      "erreur"
+    );
+    return;
+  }
+
+  try {
+    const organismeId = await trouverOuCreerOrganisme(organismeNom);
+    const imageUrl = await televerserImageOpportunite(imageFile);
+
+    const { error } = await rjoClient
+      .from("opportunites")
+      .insert({
         titre,
         categorie: document.getElementById("categorie").value,
         organisme_id: organismeId,
         pays: document.getElementById("pays").value.trim() || null,
+        image_url: imageUrl,
         public_cible: document.getElementById("public_cible").value.trim() || null,
         date_limite: document.getElementById("date_limite").value || null,
         conditions: document.getElementById("conditions").value.trim() || null,
@@ -134,14 +186,22 @@
         date_publication: new Date().toISOString(),
       });
 
-      if (error) throw error;
+    if (error) throw error;
 
-      afficherMessage("Opportunité enregistrée avec succès.", "succes");
-      document.getElementById("form-opp").reset();
-    } catch (err) {
-      afficherMessage("Erreur : " + err.message, "erreur");
-    }
+    afficherMessage(
+      "Opportunité enregistrée avec succès.",
+      "succes"
+    );
+
+    document.getElementById("form-opp").reset();
+
+  } catch (err) {
+    afficherMessage(
+      "Erreur : " + err.message,
+      "erreur"
+    );
   }
+}
 </script>
 </body>
 </html>
