@@ -57,8 +57,8 @@ async function recupererOpportunitesVerifiees(filtres = {}) {
     throw error;
   }
 
-  return data || [];
-}}
+    return data || [];
+}
 
 /**
  * Construit le HTML d'une carte opportunité.
