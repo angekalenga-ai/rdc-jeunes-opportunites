@@ -33,7 +33,8 @@
                 const { data, error } = await supabaseClient
                     .from('articles')
                     .select('*')
-                    .order('created_at', { ascending: false });
+                    .eq('statut', 'publie')
+                    .order('date_publication', { ascending: false });
 
                 if (error) { 
                     list.innerHTML = `<div class="error-box">Erreur Supabase : ${error.message}</div>`; 
