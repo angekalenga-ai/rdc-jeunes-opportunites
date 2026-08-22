@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Article | RDC Jeunes Opportunités</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .retour {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #1e40af;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .article {
+      background: #ffffff;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .article-image {
+      width: 100%;
+      max-height: 480px;
+      object-fit: cover;
+      display: block;
+      background: #e2e8f0;
+    }
+
+    .article-content {
+      padding: 30px;
+    }
+
+    .categorie {
+      display: inline-block;
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      line-height: 1.2;
+      margin: 18px 0 12px;
+    }
+
+    .date {
+      color: #64748b;
+      font-size: 0.9rem;
+      margin-bottom: 25px;
+    }
+
+    .resume {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #475569;
+      line-height: 1.7;
+      margin-bottom: 25px;
+    }
+
+    .contenu {
+      color: #334155;
+      font-size: 1.05rem;
+      line-height: 1.8;
+      white-space: pre-line;
+    }
+
+    .chargement,
+    .erreur {
+      background: #ffffff;
+      padding: 25px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .erreur {
+      color: #991b1b;
+      background: #fee2e2;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 12px;
+      }
+
+      .article-content {
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 1.7rem;
+      }
+
+      .contenu {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="container">
+
+    <a href="articles.html" class="retour">
+      ← Retour aux articles
+    </a>
+
+    <div id="article-container">
+      <div class="chargement">
+        Chargement de l'article...
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    const supabaseClient = window.supabase.createClient(
+      "https://tvikvysdfbrcwmnnlgwp.supabase.co",
+      "sb_publishable_xp-8aSpz3R7vRZ0aYp5hVw_7-UHoQXy"
+    );
+
+    const CATEGORIES = {
+      etudes_bourses: "Études & Bourses",
+      emploi_carriere: "Emploi & Carrière",
+      cv_lettre_motivation: "CV & Lettre de motivation",
+      entretiens: "Entretiens",
+      numerique_technologie: "Numérique & Technologie",
+      intelligence_artificielle: "Intelligence artificielle",
+      entrepreneuriat: "Entrepreneuriat",
+      financement: "Financement",
+      opportunites_internationales: "Opportunités internationales",
+      developpement_personnel: "Développement personnel",
+      arnaques_verification: "Arnaques & Vérification",
+      formations_certifications: "Formations & Certifications",
+      jeunesse_rdc: "Jeunesse en RDC"
+    };
+
+    function afficherErreur(message) {
+      document.getElementById("article-container").innerHTML =
+        `<div class="erreur">${message}</div>`;
+    }
+
+    async function chargerArticle() {
+      const container = document.getElementById("article-container");
+
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get("id");
+
+      if (!id) {
+        afficherErreur("Article introuvable.");
+        return;
+      }
+
+      const { data, error } = await supabaseClient
+        .from("articles")
+        .select("*")
+        .eq("id", id)
+        .eq("statut", "publie")
+        .single();
+
+      if (error || !data) {
+        afficherErreur("Cet article n'existe pas ou n'est pas publié.");
+        return;
+      }
+
+      const categorie =
+        CATEGORIES[data.categorie] || data.categorie || "Général";
+
+      const date = data.date_publication
+        ? new Date(data.date_publication).toLocaleDateString("fr-FR", {
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+          })
+        : "";
+
+      const imageHtml =
+        data.image_url && data.image_url.trim() !== ""
+          ? `<img
+              src="${data.image_url.trim()}"
+              alt="${data.titre || "Article"}"
+              class="article-image"
+            >`
+          : "";
+
+      document.title =
+        `${data.titre || "Article"} | RDC Jeunes Opportunités`;
+
+      container.innerHTML = `
+        <article class="article">
+
+          ${imageHtml}
+
+          <div class="article-content">
+
+            <span class="categorie">
+              ${categorie}
+            </span>
+
+            <h1>
+              ${data.titre || "Sans titre"}
+            </h1>
+
+            ${
+              date
+                ? `<div class="date">Publié le ${date}</div>`
+                : ""
+            }
+
+            ${
+              data.resume
+                ? `<div class="resume">${data.resume}</div>`
+                : ""
+            }
+
+            <div class="contenu">
+              ${data.contenu || ""}
+            </div>
+
+          </div>
+
+        </article>
+      `;
+    }
+
+    chargerArticle();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Modifier un article — RJO</title>
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+
+<body>
+
+<div class="barre-admin">
+  <div class="conteneur">
+    <span class="titre-admin">RJO · Back-Office</span>
+
+    <div>
+      <a href="admin_list_articles.html">← Articles</a>
+    </div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="conteneur">
+
+    <div class="section-titre">
+      <h2>Modifier l'article</h2>
+    </div>
+
+    <div id="zone-message"></div>
+
+    <form class="carte-admin" id="form-article" onsubmit="return false;">
+
+      <div class="champ">
+        <label>Titre</label>
+        <input type="text" id="titre" required>
+      </div>
+
+      <div class="champ">
+        <label>Catégorie</label>
+
+        <select id="categorie" required>
+          <option value="etudes_bourses">Études & Bourses</option>
+          <option value="emploi_carriere">Emploi & Carrière</option>
+          <option value="cv_lettre_motivation">CV & Lettre de motivation</option>
+          <option value="entretiens">Entretiens</option>
+          <option value="numerique_technologie">Numérique & Technologie</option>
+          <option value="intelligence_artificielle">Intelligence artificielle</option>
+          <option value="entrepreneuriat">Entrepreneuriat</option>
+          <option value="financement">Financement</option>
+          <option value="opportunites_internationales">Opportunités internationales</option>
+          <option value="developpement_personnel">Développement personnel</option>
+          <option value="arnaques_verification">Arnaques & Vérification</option>
+          <option value="formations_certifications">Formations & Certifications</option>
+          <option value="jeunesse_rdc">Jeunesse en RDC</option>
+        </select>
+      </div>
+
+      <div class="champ">
+        <label>Résumé court</label>
+        <input type="text" id="resume">
+      </div>
+
+      <div class="champ">
+        <label>Contenu complet</label>
+        <textarea id="contenu" rows="12" required></textarea>
+      </div>
+
+      <div class="champ">
+
+        <label>Image actuelle</label>
+
+        <div id="image-actuelle" style="margin-top:10px;">
+          Chargement...
+        </div>
+
+      </div>
+
+      <div class="champ">
+
+        <label>Remplacer l'image</label>
+
+        <input
+          type="file"
+          id="image"
+          accept="image/jpeg,image/png,image/webp"
+        >
+
+        <small>
+          Facultatif · JPG, PNG ou WebP · 5 Mo maximum
+        </small>
+
+        <div id="apercu-image" style="margin-top:10px;"></div>
+
+      </div>
+
+      <div class="champ">
+
+        <label>Statut</label>
+
+        <select id="statut">
+
+          <option value="brouillon">
+            Brouillon
+          </option>
+
+          <option value="programme">
+            Programmé
+          </option>
+
+          <option value="publie">
+            Publié
+          </option>
+
+        </select>
+
+      </div>
+
+      <button
+        type="button"
+        id="bouton-enregistrer"
+        class="bouton bouton-primaire"
+        style="width:100%;"
+        onclick="enregistrerModifications()"
+      >
+        Enregistrer les modifications
+      </button>
+
+    </form>
+
+  </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="supabase-client.js"></script>
+
+<script>
+
+  verifierAccesAdmin([
+    "super_admin",
+    "admin",
+    "editeur"
+  ]);
+
+  let articleId = null;
+  let ancienneImageUrl = null;
+
+  function afficherMessage(texte, type) {
+
+    document.getElementById("zone-message").innerHTML =
+      `<div class="message-${type}">${texte}</div>`;
+
+  }
+
+  function afficherApercuImage() {
+
+    const input = document.getElementById("image");
+    const apercu = document.getElementById("apercu-image");
+
+    apercu.innerHTML = "";
+
+    if (!input.files || !input.files[0]) {
+      return;
+    }
+
+    const fichier = input.files[0];
+
+    if (
+      ![
+        "image/jpeg",
+        "image/png",
+        "image/webp"
+      ].includes(fichier.type)
+    ) {
+
+      afficherMessage(
+        "Format d’image non autorisé. Utilisez JPG, PNG ou WebP.",
+        "erreur"
+      );
+
+      input.value = "";
+      return;
+    }
+
+    if (fichier.size > 5 * 1024 * 1024) {
+
+      afficherMessage(
+        "L’image ne doit pas dépasser 5 Mo.",
+        "erreur"
+      );
+
+      input.value = "";
+      return;
+    }
+
+    const image = document.createElement("img");
+
+    image.src = URL.createObjectURL(fichier);
+    image.alt = "Aperçu de la nouvelle image";
+
+    image.style.maxWidth = "300px";
+    image.style.maxHeight = "200px";
+    image.style.borderRadius = "8px";
+
+    apercu.appendChild(image);
+  }
+
+  document
+    .getElementById("image")
+    .addEventListener(
+      "change",
+      afficherApercuImage
+    );
+
+
+  async function chargerArticle() {
+
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    articleId = params.get("id");
+
+    if (!articleId) {
+
+      afficherMessage(
+        "Identifiant de l'article manquant.",
+        "erreur"
+      );
+
+      return;
+    }
+
+    const { data, error } =
+      await rjoClient
+        .from("articles")
+        .select("*")
+        .eq("id", articleId)
+        .single();
+
+    if (error || !data) {
+
+      afficherMessage(
+        "Article introuvable.",
+        "erreur"
+      );
+
+      return;
+    }
+
+    document.getElementById("titre").value =
+      data.titre || "";
+
+    document.getElementById("categorie").value =
+      data.categorie || "jeunesse_rdc";
+
+    document.getElementById("resume").value =
+      data.resume || "";
+
+    document.getElementById("contenu").value =
+      data.contenu || "";
+
+    document.getElementById("statut").value =
+      data.statut || "brouillon";
+
+    ancienneImageUrl =
+      data.image_url || null;
+
+    const zoneImage =
+      document.getElementById("image-actuelle");
+
+    if (ancienneImageUrl) {
+
+      zoneImage.innerHTML = `
+        <img
+          src="${ancienneImageUrl}"
+          alt="Image actuelle"
+          style="
+            max-width:300px;
+            max-height:200px;
+            border-radius:8px;
+          "
+        >
+      `;
+
+    } else {
+
+      zoneImage.innerHTML =
+        "<small>Aucune image actuellement.</small>";
+
+    }
+
+  }
+
+
+  async function enregistrerModifications() {
+
+    const titre =
+      document.getElementById("titre")
+        .value.trim();
+
+    const contenu =
+      document.getElementById("contenu")
+        .value.trim();
+
+    const resume =
+      document.getElementById("resume")
+        .value.trim();
+
+    const categorie =
+      document.getElementById("categorie")
+        .value;
+
+    const statut =
+      document.getElementById("statut")
+        .value;
+
+    const imageInput =
+      document.getElementById("image");
+
+    const nouveauFichier =
+      imageInput.files[0];
+
+    if (!titre || !contenu) {
+
+      afficherMessage(
+        "Titre et contenu sont obligatoires.",
+        "erreur"
+      );
+
+      return;
+    }
+
+    if (nouveauFichier) {
+
+      if (
+        ![
+          "image/jpeg",
+          "image/png",
+          "image/webp"
+        ].includes(nouveauFichier.type)
+      ) {
+
+        afficherMessage(
+          "Format d’image non autorisé.",
+          "erreur"
+        );
+
+        return;
+      }
+
+      if (
+        nouveauFichier.size >
+        5 * 1024 * 1024
+      ) {
+
+        afficherMessage(
+          "L’image ne doit pas dépasser 5 Mo.",
+          "erreur"
+        );
+
+        return;
+      }
+
+    }
+
+    const bouton =
+      document.getElementById(
+        "bouton-enregistrer"
+      );
+
+    bouton.disabled = true;
+    bouton.textContent =
+      "Enregistrement en cours...";
+
+    let nouvelleImageUrl =
+      ancienneImageUrl;
+
+    let nouveauCheminImage =
+      null;
+
+    try {
+
+      /*
+       * 1. Upload de la nouvelle image
+       */
+
+      if (nouveauFichier) {
+
+        const extension =
+          nouveauFichier.name
+            .split(".")
+            .pop()
+            .toLowerCase();
+
+        const nomFichier =
+          `${Date.now()}-${crypto.randomUUID()}.${extension}`;
+
+        nouveauCheminImage =
+          `images/${nomFichier}`;
+
+        afficherMessage(
+          "Téléversement de la nouvelle image...",
+          "succes"
+        );
+
+        const { error: uploadError } =
+          await rjoClient.storage
+            .from("articles")
+            .upload(
+              nouveauCheminImage,
+              nouveauFichier,
+              {
+                cacheControl: "3600",
+                contentType: nouveauFichier.type,
+                upsert: false
+              }
+            );
+
+        if (uploadError) {
+          throw uploadError;
+        }
+
+        const { data: urlData } =
+          rjoClient.storage
+            .from("articles")
+            .getPublicUrl(
+              nouveauCheminImage
+            );
+
+        nouvelleImageUrl =
+          urlData.publicUrl;
+      }
+
+      /*
+       * 2. Mise à jour de l'article
+       */
+
+      const maj = {
+
+        titre,
+        categorie,
+        resume: resume || null,
+        contenu,
+        image_url: nouvelleImageUrl,
+        statut
+
+      };
+
+      if (statut === "publie") {
+
+        maj.date_publication =
+          new Date().toISOString();
+
+      }
+
+      const { error: updateError } =
+        await rjoClient
+          .from("articles")
+          .update(maj)
+          .eq("id", articleId);
+
+      if (updateError) {
+
+        /*
+         * Si la mise à jour échoue,
+         * on supprime la nouvelle image
+         * pour éviter un fichier orphelin.
+         */
+
+        if (nouveauCheminImage) {
+
+          await rjoClient.storage
+            .from("articles")
+            .remove([
+              nouveauCheminImage
+            ]);
+
+        }
+
+        throw updateError;
+      }
+
+      /*
+       * 3. Nouvelle image validée :
+       * supprimer l'ancienne
+       */
+
+      if (
+        nouveauCheminImage &&
+        ancienneImageUrl
+      ) {
+
+        const ancienneUrl =
+          ancienneImageUrl.split(
+            "/storage/v1/object/public/articles/"
+          )[1];
+
+        if (ancienneUrl) {
+
+          await rjoClient.storage
+            .from("articles")
+            .remove([
+              ancienneUrl
+            ]);
+
+        }
+
+      }
+
+      afficherMessage(
+        "Article modifié avec succès.",
+        "succes"
+      );
+
+      ancienneImageUrl =
+        nouvelleImageUrl;
+
+      imageInput.value = "";
+
+      document.getElementById(
+        "apercu-image"
+      ).innerHTML = "";
+
+      document.getElementById(
+        "image-actuelle"
+      ).innerHTML = nouvelleImageUrl
+        ? `
+          <img
+            src="${nouvelleImageUrl}"
+            alt="Image actuelle"
+            style="
+              max-width:300px;
+              max-height:200px;
+              border-radius:8px;
+            "
+          >
+        `
+        : "<small>Aucune image.</small>";
+
+    } catch (error) {
+
+      afficherMessage(
+        "Erreur : " + error.message,
+        "erreur"
+      );
+
+    } finally {
+
+      bouton.disabled = false;
+
+      bouton.textContent =
+        "Enregistrer les modifications";
+
+    }
+
+  }
+
+  chargerArticle();
+
+</script>
+
+</body>
+</html>

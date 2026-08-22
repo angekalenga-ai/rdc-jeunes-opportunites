@@ -15,7 +15,18 @@
         h2 { color: #0f172a; margin: 15px 0; }
         p { color: #475569; line-height: 1.6; }
         .error-box { background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
-    </style>
+.article-link {
+    display: inline-block;
+    margin-top: 10px;
+    color: #1e40af;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.article-link:hover {
+    text-decoration: underline;
+}
+ </style>
 </head>
 <body>
     <div class="container">
@@ -56,11 +67,17 @@
                     }
 
                     div.innerHTML = `
-                        ${imageHtml}
-                        <span class="cat-tag">${art.categorie || 'Général'}</span>
-                        <h2>${art.titre || 'Sans titre'}</h2>
-                        <p>${art.resume || art.contenu || ''}</p>
-                    `;
+    ${imageHtml}
+    <span class="cat-tag">${art.categorie || 'Général'}</span>
+    <h2>${art.titre || 'Sans titre'}</h2>
+    <p>${art.resume || ''}</p>
+    <a
+        href="article.html?id=${encodeURIComponent(art.id)}"
+        class="article-link"
+    >
+        Lire l'article →
+    </a>
+`;
                     list.appendChild(div);
                 });
             }
