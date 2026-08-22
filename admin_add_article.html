@@ -57,9 +57,16 @@
         <textarea id="contenu" rows="8" required></textarea>
       </div>
       <div class="champ">
-        <label>Image (URL)</label>
-        <input type="url" id="image_url">
-      </div>
+  <label>Image de l’article</label>
+  <input
+    type="file"
+    id="image"
+    accept="image/jpeg,image/png,image/webp"
+    required
+  >
+  <small>JPG, PNG ou WebP · 5 Mo maximum</small>
+  <div id="apercu-image" style="margin-top:10px;"></div>
+</div>
       <div class="champ">
         <label>Statut</label>
         <select id="statut">
@@ -80,35 +87,173 @@
   verifierAccesAdmin(["super_admin", "admin", "editeur"]);
 
   function afficherMessage(texte, type) {
-    document.getElementById("zone-message").innerHTML = `<div class="message-${type}">${texte}</div>`;
+    document.getElementById("zone-message").innerHTML =
+      `<div class="message-${type}">${texte}</div>`;
   }
+
+  function afficherApercuImage() {
+    const input = document.getElementById("image");
+    const apercu = document.getElementById("apercu-image");
+
+    apercu.innerHTML = "";
+
+    if (!input.files || !input.files[0]) return;
+
+    const fichier = input.files[0];
+
+    if (!["image/jpeg", "image/png", "image/webp"].includes(fichier.type)) {
+      afficherMessage(
+        "Format d’image non autorisé. Utilisez JPG, PNG ou WebP.",
+        "erreur"
+      );
+      input.value = "";
+      return;
+    }
+
+    if (fichier.size > 5 * 1024 * 1024) {
+      afficherMessage(
+        "L’image ne doit pas dépasser 5 Mo.",
+        "erreur"
+      );
+      input.value = "";
+      return;
+    }
+
+    const image = document.createElement("img");
+    image.src = URL.createObjectURL(fichier);
+    image.alt = "Aperçu de l’image";
+    image.style.maxWidth = "300px";
+    image.style.maxHeight = "200px";
+    image.style.borderRadius = "8px";
+
+    apercu.appendChild(image);
+  }
+
+  document.getElementById("image").addEventListener(
+    "change",
+    afficherApercuImage
+  );
 
   async function gererAjoutArticle() {
     const titre = document.getElementById("titre").value.trim();
     const contenu = document.getElementById("contenu").value.trim();
+    const fichier = document.getElementById("image").files[0];
 
     if (!titre || !contenu) {
-      afficherMessage("Titre et contenu sont obligatoires.", "erreur");
+      afficherMessage(
+        "Titre et contenu sont obligatoires.",
+        "erreur"
+      );
       return;
     }
 
-    const statut = document.getElementById("statut").value;
+    if (!fichier) {
+      afficherMessage(
+        "Veuillez sélectionner une image.",
+        "erreur"
+      );
+      return;
+    }
 
-    const { error } = await rjoClient.from("articles").insert({
-      titre,
-      categorie: document.getElementById("categorie").value,
-      resume: document.getElementById("resume").value.trim() || null,
-      contenu,
-      image_url: document.getElementById("image_url").value.trim() || null,
-      statut,
-      date_publication: statut === "publie" ? new Date().toISOString() : null,
-    });
+    if (!["image/jpeg", "image/png", "image/webp"].includes(fichier.type)) {
+      afficherMessage(
+        "Format d’image non autorisé. Utilisez JPG, PNG ou WebP.",
+        "erreur"
+      );
+      return;
+    }
 
-    if (error) {
-      afficherMessage("Erreur : " + error.message, "erreur");
-    } else {
-      afficherMessage("Article enregistré avec succès.", "succes");
+    if (fichier.size > 5 * 1024 * 1024) {
+      afficherMessage(
+        "L’image ne doit pas dépasser 5 Mo.",
+        "erreur"
+      );
+      return;
+    }
+
+    const bouton = document.querySelector("#form-article button");
+
+    bouton.disabled = true;
+    bouton.textContent = "Enregistrement en cours...";
+
+    let cheminImage = null;
+
+    try {
+      const extension = fichier.name.split(".").pop().toLowerCase();
+
+      const nomFichier =
+        `${Date.now()}-${crypto.randomUUID()}.${extension}`;
+
+      cheminImage = `images/${nomFichier}`;
+
+      afficherMessage(
+        "Téléversement de l’image en cours...",
+        "succes"
+      );
+
+      const { error: uploadError } = await rjoClient.storage
+        .from("articles")
+        .upload(cheminImage, fichier, {
+          cacheControl: "3600",
+          contentType: fichier.type,
+          upsert: false
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data: urlData } = rjoClient.storage
+        .from("articles")
+        .getPublicUrl(cheminImage);
+
+      const imageUrl = urlData.publicUrl;
+
+      const statut = document.getElementById("statut").value;
+
+      const { error: articleError } = await rjoClient
+        .from("articles")
+        .insert({
+          titre,
+          categorie: document.getElementById("categorie").value,
+          resume:
+            document.getElementById("resume").value.trim() || null,
+          contenu,
+          image_url: imageUrl,
+          statut,
+          date_publication:
+            statut === "publie"
+              ? new Date().toISOString()
+              : null
+        });
+
+      if (articleError) {
+        await rjoClient.storage
+          .from("articles")
+          .remove([cheminImage]);
+
+        throw articleError;
+      }
+
+      afficherMessage(
+        "Article et image enregistrés avec succès.",
+        "succes"
+      );
+
       document.getElementById("form-article").reset();
+      document.getElementById("apercu-image").innerHTML = "";
+
+    } catch (error) {
+      console.error("Erreur ajout article :", error);
+
+      afficherMessage(
+        "Erreur : " + (error.message || "Une erreur est survenue."),
+        "erreur"
+      );
+
+    } finally {
+      bouton.disabled = false;
+      bouton.textContent = "Enregistrer l'article";
     }
   }
 </script>
