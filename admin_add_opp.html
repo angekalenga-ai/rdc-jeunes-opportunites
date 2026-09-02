@@ -29,38 +29,78 @@
         <input type="date" id="date_limite">
         <textarea id="description" placeholder="Description courte"></textarea>
         <input type="url" id="lien_officiel" placeholder="Lien officiel" required>
+        <input type="url" id="source_url" placeholder="URL de la source officielle (obligatoire)" required>
+        <input type="text" id="source_titre" placeholder="Titre de la source (optionnel)">
         
         <button type="submit">Publier l'opportunité</button>
     </form>
 
     <script>
         // CONFIGURATION : Remplacez par vos clés Supabase réelles
-        const SUPABASE_URL = 'https://tvikvysdfbrcwmnnlgwp.supabase.co/rest/v1/';
+        const SUPABASE_URL = 'https://tvikvysdfbrcwmnnlgwp.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_xp-8aSpz3R7vRZ0aYp5hVw_7-UHoQXy';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         document.getElementById('oppForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            const data = {
+
+            const nomOrganisme = document.getElementById('organisme').value;
+            let organismeId;
+
+            const { data: existant } = await supabaseClient
+                .from('organismes')
+                .select('id')
+                .eq('nom', nomOrganisme)
+                .maybeSingle();
+
+            if (existant) {
+                organismeId = existant.id;
+            } else {
+                const { data: nouveau, error: orgError } = await supabaseClient
+                    .from('organismes')
+                    .insert([{ nom: nomOrganisme }])
+                    .select()
+                    .single();
+                if (orgError) { alert('Erreur organisme : ' + orgError.message); return; }
+                organismeId = nouveau.id;
+            }
+
+            const dataOpp = {
                 titre: document.getElementById('titre').value,
                 categorie: document.getElementById('categorie').value,
-                organisme: document.getElementById('organisme').value,
+                organisme_id: organismeId,
                 pays: document.getElementById('pays').value,
-                date_limite: document.getElementById('date_limite').value,
-                description: document.getElementById('description').value,
-                lien_officiel: document.getElementById('lien_officiel').value,
-                statut_verification: 'a_verifier' // Par défaut
+                date_limite: document.getElementById('date_limite').value || null,
+                conditions: document.getElementById('description').value,
+                lien_officiel: document.getElementById('lien_officiel').value
             };
 
-            const { error } = await supabase.from('opportunites').insert([data]);
-            
+            const { data: opp, error } = await supabaseClient
+                .from('opportunites')
+                .insert([dataOpp])
+                .select()
+                .single();
+
             if (error) {
                 alert('Erreur : ' + error.message);
-            } else {
-                alert('Opportunité ajoutée avec succès !');
-                document.getElementById('oppForm').reset();
+                return;
             }
+
+            const { error: sourceError } = await supabaseClient
+                .from('sources')
+                .insert([{
+                    opportunite_id: opp.id,
+                    url: document.getElementById('source_url').value,
+                    titre: document.getElementById('source_titre').value || null
+                }]);
+
+            if (sourceError) {
+                alert("Opportunité créée, mais erreur source : " + sourceError.message);
+                return;
+            }
+
+            alert('✅ Opportunité et source enregistrées avec succès !');
+            document.getElementById('oppForm').reset();
         });
     </script>
 </body>
