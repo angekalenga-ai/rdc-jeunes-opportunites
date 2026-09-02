@@ -37,40 +37,93 @@ async function recupererOpportunitesVerifiees(filtres = {}) {
   if (filtres.categorie) {
     requete = requete.eq("categorie", filtres.categorie);
   }
+
   if (filtres.pays) {
     requete = requete.ilike("pays", `%${filtres.pays}%`);
   }
+
   if (filtres.recherche) {
     requete = requete.ilike("titre", `%${filtres.recherche}%`);
   }
+
   if (filtres.limite) {
     requete = requete.limit(filtres.limite);
   }
 
   const { data, error } = await requete;
+
   if (error) {
     console.error("Erreur Supabase (opportunités) :", error);
-    return [];
+    throw error;
   }
-  return data;
+
+    return data || [];
 }
 
 /**
  * Construit le HTML d'une carte opportunité.
  */
 function carteOpportuniteHTML(opp) {
-  const organismeData = Array.isArray(opp.organismes) ? opp.organismes[0] : opp.organismes;
-  const nomOrganisme = organismeData?.nom || "Organisme non précisé";
-  const paysAffiche = opp.pays || "—";
+  const organismeData = Array.isArray(opp.organismes)
+    ? opp.organismes[0]
+    : opp.organismes;
+
+  const nomOrganisme =
+    organismeData?.nom || "Organisme non précisé";
+
+  const paysAffiche = opp.pays || "RDC";
+
+  const imageAffichee =
+    opp.image_url ||
+    "images/placeholder-opportunite.jpg";
+
+  const categorie =
+    LABELS_CATEGORIE[opp.categorie] ||
+    opp.categorie ||
+    "Opportunité";
+
   return `
-    <a class="carte-opportunite" href="opportunite.html?id=${opp.id}" style="text-decoration:none;">
-      <span class="tampon-verifie"><span>RJO<br>Vérifié</span></span>
-      <span class="badge-categorie">${LABELS_CATEGORIE[opp.categorie] || opp.categorie}</span>
-      <h3>${opp.titre}</h3>
-      <div class="organisme">${nomOrganisme} · ${paysAffiche}</div>
-      <div class="meta-ligne">
-        <span>Date limite</span>
-        <span>${formaterDate(opp.date_limite)}</span>
+    <a
+      class="carte-opportunite"
+      href="opportunite.html?id=${opp.id}"
+    >
+
+      <div class="carte-opportunite-image">
+        <img
+          src="${imageAffichee}"
+          alt="${opp.titre}"
+          loading="lazy"
+          onerror="this.src='images/placeholder-opportunite.jpg'"
+        >
+      </div>
+
+      <div class="carte-opportunite-contenu">
+
+        <div class="carte-opportunite-badges">
+          <span class="tampon-verifie">
+            ✓ RJO Vérifié
+          </span>
+
+          <span class="badge-categorie">
+            ${categorie}
+          </span>
+        </div>
+
+        <h3>${opp.titre}</h3>
+
+        <div class="organisme">
+          ${nomOrganisme}
+        </div>
+
+        <div class="opp-infos">
+          <span>📍 ${paysAffiche}</span>
+          <span>📅 ${formaterDate(opp.date_limite)}</span>
+        </div>
+
+        <span class="opp-bouton">
+          Voir l'opportunité →
+        </span>
+
       </div>
     </a>
   `;
@@ -88,11 +141,9 @@ async function inscrire(email, motDePasse, nomComplet) {
     email,
     password: motDePasse,
     options: {
-      data: {
-        nom_complet: nomComplet
-      },
-      emailRedirectTo: "https://angekalenga-ai.github.io/rdc-jeunes-opportunites/compte.html"
-    }
+      data: { nom_complet: nomComplet },
+      emailRedirectTo: "https://angekalenga-ai.github.io/rdc-jeunes-opportunites/compte.html",
+    },
   });
 }
 
@@ -115,10 +166,12 @@ async function recupererProfil(userId) {
     .select("nom_complet, role")
     .eq("id", userId)
     .single();
+
   if (error) {
     console.error("Erreur récupération profil :", error);
     return null;
   }
+
   return data;
 }
 
@@ -127,8 +180,54 @@ function traduireErreurAuth(message) {
     "Invalid login credentials": "Email ou mot de passe incorrect.",
     "User already registered": "Un compte existe déjà avec cet email.",
     "Password should be at least 6 characters": "Le mot de passe doit contenir au moins 6 caractères.",
-    "Email not confirmed": "Confirme ton email avant de te connecter (vérifie ta boîte mail)."
+    "Email not confirmed": "Confirme ton email avant de te connecter (vérifie ta boîte mail).",
   };
-  return table[message] || message || "Une erreur est survenue. Réessaie dans un instant.";
+  return table[message] || "Une erreur est survenue. Réessaie dans un instant.";
 }
 
+/* -------- BACK-OFFICE -------- */
+
+/**
+ * Vérifie que l'utilisateur est connecté ET a un rôle autorisé.
+ * Redirige vers login.html sinon. À appeler en haut de chaque page admin.
+ */
+async function verifierAccesAdmin(rolesAutorises = ["super_admin", "admin"]) {
+  const session = await recupererSessionActuelle();
+  if (!session) {
+    window.location.href = "login.html";
+    return null;
+  }
+  const profil = await recupererProfil(session.user.id);
+  if (!profil || !rolesAutorises.includes(profil.role)) {
+    await deconnecter();
+    window.location.href = "login.html";
+    return null;
+  }
+  return profil;
+}
+
+/**
+ * Retrouve un organisme par son nom (insensible à la casse), ou le crée s'il n'existe pas.
+ * Retourne l'id de l'organisme.
+ */
+async function trouverOuCreerOrganisme(nom) {
+  const nomPropre = nom.trim();
+  const { data: existant, error: erreurRecherche } = await rjoClient
+    .from("organismes")
+    .select("id")
+    .ilike("nom", nomPropre)
+    .limit(1)
+    .maybeSingle();
+
+  if (erreurRecherche) throw erreurRecherche;
+  if (existant) return existant.id;
+
+  const { data: nouveau, error: erreurCreation } = await rjoClient
+    .from("organismes")
+    .insert({ nom: nomPropre })
+    .select("id")
+    .single();
+
+  if (erreurCreation) throw erreurCreation;
+  return nouveau.id;
+}

@@ -13,25 +13,17 @@
 
 <header class="entete">
   <div class="conteneur">
-    <a class="logo" href="index.html"><img src="images/logo-rjo.png" alt="RDC Jeunes Opportunités"></a>
+    <a class="logo" href="index.html">
+      <img src="images/logo-rjo.png" alt="RDC Jeunes Opportunités">
+    </a>
+
     <nav class="nav-principale">
       <a href="index.html">Accueil</a>
       <a href="opportunites.html">Opportunités</a>
-      <a href="https://rdcjeuneopportunites.blogspot.com" target="_blank" rel="noopener">Articles</a>
+      <a href="articles.html">Articles</a>
       <a href="apropos.html">À propos</a>
       <a href="contact.html">Contact</a>
-      <a href="compte.html">Connexion</a>
-    </nav>
-    <button class="menu-mobile-bouton" onclick="basculerMenuMobile()">Menu</button>
-  </div>
-  <div class="conteneur">
-    <nav class="nav-mobile" id="nav-mobile">
-      <a href="index.html">Accueil</a>
-      <a href="opportunites.html">Opportunités</a>
-      <a href="https://rdcjeuneopportunites.blogspot.com" target="_blank" rel="noopener">Articles</a>
-      <a href="apropos.html">À propos</a>
-      <a href="contact.html">Contact</a>
-      <a href="compte.html">Connexion</a>
+      <a href="compte.html">Mon compte</a>
     </nav>
   </div>
 </header>
@@ -111,7 +103,7 @@
     <div class="pied-colonne">
       <h4>Explorer</h4>
       <a href="opportunites.html">Toutes les opportunités</a>
-      <a href="https://rdcjeuneopportunites.blogspot.com" target="_blank" rel="noopener">Articles & conseils</a>
+      <a href="articles.html">Articles</a>
     </div>
     <div class="pied-colonne">
       <h4>Contact</h4>
@@ -202,11 +194,11 @@
     document.getElementById("profil-role").textContent = profil?.role || "utilisateur";
     document.getElementById("avatar-initiale").textContent = nomAffiche.charAt(0).toUpperCase();
 
-    // Gestion de l'affichage du bouton Back-Office pour le super admin
+    // Bouton Back-Office pour les administrateurs
     const ancienBoutonAdmin = document.getElementById("btn-admin-backoffice");
     if (ancienBoutonAdmin) ancienBoutonAdmin.remove();
 
-    if (profil && profil.role === 'super_admin') {
+    if (profil && ["super_admin", "admin", "verificateur", "editeur"].includes(profil.role)) {
       const btnAdmin = document.createElement("a");
       btnAdmin.id = "btn-admin-backoffice";
       btnAdmin.href = "admin_dashboard.html";

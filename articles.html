@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actualités | RDC Jeunes Opportunités</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f1f5f9; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: auto; }
+        h1 { color: #1e293b; text-align: center; margin-bottom: 40px; }
+        .article-card { background: white; border-radius: 16px; padding: 25px; margin-bottom: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .article-img { width: 100%; height: 220px; object-fit: cover; border-radius: 12px; margin-bottom: 20px; display: block; background-color: #e2e8f0; }
+        .cat-tag { background: #dbeafe; color: #1e40af; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; }
+        h2 { color: #0f172a; margin: 15px 0; }
+        p { color: #475569; line-height: 1.6; }
+        .error-box { background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+.article-link {
+    display: inline-block;
+    margin-top: 10px;
+    color: #1e40af;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.article-link:hover {
+    text-decoration: underline;
+}
+ </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Actualités & Articles</h1>
+        <div id="articles-list">Chargement des articles...</div>
+    </div>
+
+    <script>
+        try {
+            // Utilisation d'un nom sécurisé pour éviter le conflit
+            const supabaseClient = window.supabase.createClient('https://tvikvysdfbrcwmnnlgwp.supabase.co', 'sb_publishable_xp-8aSpz3R7vRZ0aYp5hVw_7-UHoQXy');
+
+            async function loadArticles() {
+                const list = document.getElementById('articles-list');
+                const { data, error } = await supabaseClient
+                    .from('articles')
+                    .select('*')
+                    .eq('statut', 'publie')
+                    .order('date_publication', { ascending: false });
+
+                if (error) { 
+                    list.innerHTML = `<div class="error-box">Erreur Supabase : ${error.message}</div>`; 
+                    return; 
+                }
+                if (!data || data.length === 0) { 
+                    list.innerHTML = "Aucun article pour le moment."; 
+                    return; 
+                }
+
+                list.innerHTML = '';
+                data.forEach(art => {
+                    const div = document.createElement('div');
+                    div.className = 'article-card';
+                    
+                    let imageHtml = '';
+                    if (art.image_url && art.image_url.trim() !== '') {
+                        imageHtml = `<img src="${art.image_url.trim()}" alt="Illustration" class="article-img">`;
+                    }
+
+                    div.innerHTML = `
+    ${imageHtml}
+    <span class="cat-tag">${art.categorie || 'Général'}</span>
+    <h2>${art.titre || 'Sans titre'}</h2>
+    <p>${art.resume || ''}</p>
+    <a
+        href="article.html?id=${encodeURIComponent(art.id)}"
+        class="article-link"
+    >
+        Lire l'article →
+    </a>
+`;
+                    list.appendChild(div);
+                });
+            }
+            loadArticles();
+        } catch (err) {
+            document.getElementById('articles-list').innerHTML = `<div class="error-box">Erreur critique : ${err.message}</div>`;
+        }
+    </script>
+</body>
+</html>

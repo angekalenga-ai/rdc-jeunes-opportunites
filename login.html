@@ -1,71 +1,150 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RJO | Connexion Admin</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body { font-family: 'IBM Plex Sans', sans-serif; padding: 20px; background: #f4f4f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        form { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px; box-sizing: border-box; }
-        h2 { color: #102A68; text-align: center; margin-bottom: 20px; }
-        input { width: 100%; margin-bottom: 15px; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
-        button { background: #0756B8; color: white; padding: 12px; border: none; border-radius: 6px; width: 100%; cursor: pointer; font-weight: bold; font-size: 16px; }
-        button:active { background: #053f85; }
-        .error { color: #D71920; text-align: center; margin-bottom: 15px; font-size: 14px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Administration — RDC Jeunes Opportunités</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body style="background:var(--gris-clair); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;">
 
-    <form id="loginForm">
-        <h2>Administration RJO</h2>
-        <div id="errorMsg" class="error"></div>
-        <input type="email" id="email" placeholder="Email administrateur" required>
-        <input type="password" id="password" placeholder="Mot de passe" required>
-        <button type="submit">Se connecter</button>
-    </form>
+<div style="width:100%; max-width:400px;">
+  <div style="text-align:center; margin-bottom:20px;">
+    <img src="images/logo-rjo.png" alt="RJO" style="height:56px;">
+  </div>
 
-    <script>
-        // CONFIGURATION : Remplacez par vos clés Supabase réelles
-        const SUPABASE_URL = 'https://tvikvysdfbrcwmnnlgwp.supabase.co/rest/v1/';
-        const SUPABASE_KEY = 'sb_publishable_xp-8aSpz3R7vRZ0aYp5hVw_7-UHoQXy';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  <form class="carte-auth" id="form-login" onsubmit="gererLoginAdmin(event)">
+    <h2 style="text-align:center; font-size:1.2rem;">Administration RJO</h2>
+    <div id="zone-message"></div>
+    <div class="champ">
+      <label>Email administrateur</label>
+      <input type="email" id="login-email" required>
+    </div>
+    <div class="champ">
+      <label>Mot de passe</label>
+      <input type="password" id="login-motdepasse" required>
+    </div>
+    <button type="submit" id="bouton-login" class="bouton bouton-primaire" style="width:100%;">Se connecter</button>
+  </form>
 
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const errorDiv = document.getElementById('errorMsg');
-            errorDiv.textContent = '';
+  <p style="text-align:center; margin-top:16px;"><a href="index.html" style="color:var(--gris-texte-clair); font-size:0.85rem;">← Retour au site</a></p>
+</div>
 
-            // 1. Connexion via l'authentification Supabase
-            const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-                email: email,
-                password: password
-            });
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="supabase-client.js"></script>
+<script>
+  const ROLES_ADMIN = ["super_admin", "admin", "verificateur", "editeur"];
 
-            if (authError) {
-                errorDiv.textContent = 'Erreur : ' + authError.message;
-                return;
-            }
+  function afficherMessage(texte, type) {
+    document.getElementById("zone-message").innerHTML = `<div class="message-${type}">${texte}</div>`;
+  }
 
-            // 2. Vérification du rôle dans la table profiles
-            const userId = authData.user.id;
-            const { data: profileData, error: profileError } = await supabase
-                .from('profiles')
-                .select('role')
-                .eq('id', userId)
-                .single();
+  async function gererLoginAdmin(event) {
+  if (event) event.preventDefault();
 
-            if (profileError || !profileData || profileData.role !== 'super_admin') {
-                errorDiv.textContent = 'Accès refusé : Droits super_admin requis.';
-                await supabase.auth.signOut(); // Sécurité : déconnexion immédiate
-                return;
-            }
+  const bouton = document.getElementById("bouton-login");
+  const email = document.getElementById("login-email").value.trim();
+  const motDePasse = document.getElementById("login-motdepasse").value;
 
-            // 3. Redirection vers le tableau de bord
-            window.location.href = 'admin_dashboard.html';
-        });
-    </script>
+  const etape = (message) => {
+    console.log("[LOGIN]", message);
+    afficherMessage(message, "info");
+  };
+
+  if (!email || !motDePasse) {
+    afficherMessage(
+      "Veuillez renseigner votre email et votre mot de passe.",
+      "erreur"
+    );
+    return;
+  }
+
+  bouton.disabled = true;
+  bouton.textContent = "Connexion en cours...";
+
+  try {
+    etape("1/5 — Connexion à Supabase...");
+
+    const resultat = await connecter(email, motDePasse);
+
+    if (!resultat) {
+      throw new Error("Aucune réponse du service d'authentification.");
+    }
+
+    if (resultat.error) {
+      throw new Error(
+        traduireErreurAuth(resultat.error.message || "Erreur Auth Supabase.")
+      );
+    }
+
+    etape("2/5 — Authentification réussie.");
+
+    const session = await recupererSessionActuelle();
+
+    if (!session || !session.user) {
+      throw new Error("Session Supabase introuvable après connexion.");
+    }
+
+    etape("3/5 — Session récupérée.");
+
+    console.log("[LOGIN] User ID :", session.user.id);
+    console.log("[LOGIN] Email :", session.user.email);
+
+    const profil = await recupererProfil(session.user.id);
+
+    if (!profil) {
+      throw new Error(
+        "Le profil utilisateur est introuvable ou inaccessible."
+      );
+    }
+
+    etape("4/5 — Profil récupéré.");
+
+    console.log("[LOGIN] Profil :", profil);
+    console.log("[LOGIN] Rôle :", profil.role);
+
+    const rolesAutorises = [
+      "super_admin",
+      "admin",
+      "verificateur",
+      "editeur"
+    ];
+
+    if (!rolesAutorises.includes(profil.role)) {
+      await deconnecter();
+      throw new Error(
+        "Accès refusé. Rôle détecté : " + profil.role
+      );
+    }
+
+    etape("5/5 — Rôle administrateur validé.");
+
+    afficherMessage(
+      "Connexion réussie. Ouverture du tableau de bord...",
+      "succes"
+    );
+
+    setTimeout(() => {
+      window.location.href = "admin_dashboard.html";
+    }, 500);
+
+  } catch (erreur) {
+    console.error("[LOGIN] ERREUR :", erreur);
+
+    afficherMessage(
+      "Échec à l'étape actuelle : " +
+      (erreur.message || "Erreur inconnue."),
+      "erreur"
+    );
+
+  } finally {
+    bouton.disabled = false;
+    bouton.textContent = "Se connecter";
+  }
+}
+</script>
 </body>
 </html>
