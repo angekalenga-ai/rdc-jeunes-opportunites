@@ -8,7 +8,49 @@
   "theme_color": "#0756B8",
   "lang": "fr",
   "icons": [
-    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
-    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "id": "/rdc-jeunes-opportunites/",
+  "description": "Opportunités vérifiées pour les jeunes de la RDC : emplois, stages, bourses, formations, concours. Aucune offre sans source officielle. Jamais d'argent demandé.",
+  "orientation": "portrait",
+  "dir": "ltr",
+  "categories": [
+    "education",
+    "business",
+    "productivity"
+  ],
+  "shortcuts": [
+    {
+      "name": "Opportunités",
+      "short_name": "Offres",
+      "url": "./opportunites.html",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Mon compte",
+      "short_name": "Compte",
+      "url": "./compte.html",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
   ]
 }
